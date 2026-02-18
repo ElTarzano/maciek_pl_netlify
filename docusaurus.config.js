@@ -11,12 +11,12 @@ const config = {
     v4: true,
   },
 
-  url: 'https://your-docusaurus-site.example.com',
-  baseUrl: '/',
+  url: 'https://ElTarzano.github.io',
+  baseUrl: '/maciek_pl/',
 
   organizationName: 'ElTarzano',
-  projectName: 'maciek-doc',
-
+  projectName: 'maciek_pl',
+  deploymentBranch: "gh-pages",
   onBrokenLinks: 'throw',
 
   i18n: {
@@ -100,11 +100,11 @@ const config = {
                 },
                 {
                   label: 'Produkt B',
-                  to: '/products/product-b',
+                  to: '/trening/indywidualny',
                 },
                 {
                   label: 'Produkt C',
-                  to: '/products/product-c',
+                  to: '/trening/indywidualny',
                 },
               ],
             },
