@@ -1,0 +1,29 @@
+---
+title: Ścianki Wspinaczkowe Kraków
+description: Mapa wszystkich ścianek wspinaczkowych w Krakowie
+---
+
+import BrowserOnly from '@docusaurus/BrowserOnly';
+import ClimbingMap from '@site/src/components/ClimbingMap';
+
+# 🧗 Ścianki Wspinaczkowe w Krakowie
+
+Interaktywna mapa wszystkich ścianek wspinaczkowych w Krakowie. Kliknij znacznik lub wybierz ściankę z listy, aby zobaczyć szczegóły.
+
+<BrowserOnly fallback={<div>Ładowanie mapy…</div>}>
+  {() => <ClimbingMap />}
+</BrowserOnly>
+
+## Jak korzystać z mapy
+
+- **Filtruj** ścianki według typu – bouldering lub prowadzenie
+- **Kliknij** znacznik na mapie lub kartę w bocznym panelu
+- **Kolor** znacznika odzwierciedla ocenę miejsca (🟢 najwyższa → 🟠 niższa)
+- **Mapa** automatycznie przybliży się do wybranej ścianki
+
+## Legenda typów
+
+| Symbol | Typ | Opis |
+|--------|-----|------|
+| 🧗 | Bouldering | Wspinaczka bez liny, na niskich ścianach z matami |
+| 🪢 | Prowadzenie | Wspinaczka z liną – toprópe i prowadzenie |
