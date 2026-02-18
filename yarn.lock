@@ -4725,26 +4725,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"Maciek Orłowski@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "Maciek Orłowski@workspace:."
-  dependencies:
-    "@docusaurus/core": "npm:3.9.2"
-    "@docusaurus/module-type-aliases": "npm:3.9.2"
-    "@docusaurus/preset-classic": "npm:3.9.2"
-    "@docusaurus/types": "npm:3.9.2"
-    "@easyops-cn/docusaurus-search-local": "npm:^0.55.0"
-    "@mdx-js/react": "npm:^3.0.0"
-    clsx: "npm:^2.0.0"
-    lunr: "npm:^2.3.9"
-    lunr-languages: "npm:^1.14.0"
-    open-ask-ai: "npm:^0.7.3"
-    prism-react-renderer: "npm:^2.3.0"
-    react: "npm:^19.0.0"
-    react-dom: "npm:^19.0.0"
-  languageName: unknown
-  linkType: soft
-
 "abbrev@npm:^4.0.0":
   version: 4.0.0
   resolution: "abbrev@npm:4.0.0"
@@ -9868,6 +9848,26 @@ __metadata:
   checksum: 10c0/5120171d4bdb1577764c5afa96e413353bff530d1b37081cb29cccc747f989eb1baf40574fe8e27060fc1aef72b59c042f72b9b208413de33bcf411343c69057
   languageName: node
   linkType: hard
+
+"my-website@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "my-website@workspace:."
+  dependencies:
+    "@docusaurus/core": "npm:3.9.2"
+    "@docusaurus/module-type-aliases": "npm:3.9.2"
+    "@docusaurus/preset-classic": "npm:3.9.2"
+    "@docusaurus/types": "npm:3.9.2"
+    "@easyops-cn/docusaurus-search-local": "npm:^0.55.0"
+    "@mdx-js/react": "npm:^3.0.0"
+    clsx: "npm:^2.0.0"
+    lunr: "npm:^2.3.9"
+    lunr-languages: "npm:^1.14.0"
+    open-ask-ai: "npm:^0.7.3"
+    prism-react-renderer: "npm:^2.3.0"
+    react: "npm:^19.0.0"
+    react-dom: "npm:^19.0.0"
+  languageName: unknown
+  linkType: soft
 
 "nanoid@npm:^3.3.11":
   version: 3.3.11
