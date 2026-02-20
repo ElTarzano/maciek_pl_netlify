@@ -217,7 +217,7 @@ export default function OneRepMax() {
                             onChange={(e) => setWeight(Number(e.target.value))}
                             onBlur={(e) => setWeight(clamp(Number(e.target.value) || 1, 1, 300))}
                         />
-                        <span className="orm-suffix">kg</span>
+                        <span className="orm-suffix"></span>
                     </div>
                 </div>
                 {isWeightInvalid && <div style={{color: 'var(--ifm-color-danger)'}}>Podaj dodatni ciężar.</div>}
