@@ -17,6 +17,7 @@ const config = {
   projectName: 'maciek_pl',
   deploymentBranch: "gh-pages",
   onBrokenLinks: 'throw',
+  trailingSlash: false,
 
   i18n: {
     defaultLocale: 'pl',
