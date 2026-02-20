@@ -169,7 +169,7 @@ export default function OneRepMax() {
         .orm-input-suffix { position: relative; display: inline-block; }
         .orm-number {
           width: 120px; min-width: 100px;
-          padding: 8px 28px 8px 10px; /* miejsce na sufiks po prawej */
+          padding: 8px 10px 8px 10px; /* miejsce na sufiks po prawej */
           border-radius: 8px;
           border: 1px solid var(--ifm-color-emphasis-300);
           background: var(--ifm-background-color);
