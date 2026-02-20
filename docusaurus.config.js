@@ -25,9 +25,9 @@ const config = {
     localeConfigs: {
       pl: {
         label: 'Polski',
-        },
       },
     },
+  },
 
   presets: [
     [
@@ -88,6 +88,7 @@ const config = {
             alt: 'Maciek Orłowski Logo',
             src: 'img/logo.svg',
           },
+          hideOnScroll: true, // ✅ WŁĄCZONE chowanie paska nawigacji podczas scrollu
           items: [
             {
               type: 'dropdown',
@@ -114,7 +115,7 @@ const config = {
               position: 'left',
               label: 'Dokumentacja',
             },
-            {to: '/blog', label: 'Blog', position: 'left'},
+            { to: '/blog', label: 'Blog', position: 'left' },
           ],
         },
         footer: {
@@ -160,7 +161,7 @@ const config = {
               ],
             },
           ],
-          copyright: `Copyright © ${new Date().getFullYear()} Strona Maćka Orłowskiego`,
+          copyright: `Copyright © ${new Date().getFullYear()} Maciek Orłowski`,
         },
         prism: {
           theme: prismThemes.github,
@@ -170,3 +171,4 @@ const config = {
 };
 
 export default config;
+``

@@ -137,3 +137,7 @@ article[class*="docItemCol"]::before {
   background-size: cover;
   margin-bottom: 2rem;
 }
+
+.searchHintContainer_Pkmr {
+  display: none !important;
+}
