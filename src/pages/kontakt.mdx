@@ -1,0 +1,217 @@
+---
+id: contact
+title: Kontakt
+description: Skontaktuj się z nami – formularz Netlify z ochroną anty‑spam (honeypot + opcjonalna reCAPTCHA).
+# Jeśli zapisujesz w src/pages/contact.mdx, frontmatter może być pominięty.
+---
+
+import React from 'react';
+
+/**
+ * Mały komponent pokazujący komunikat po wysłaniu formularza:
+ * - Netlify może przekierować np. na /contact?success=1
+ * - Poniżej wykrywamy `?success=1` i wyświetlamy box z potwierdzeniem
+*/
+function SuccessNotice() {
+if (typeof window === 'undefined') return null;
+const params = new URLSearchParams(window.location.search);
+const success = params.get('success') === '1';
+if (!success) return null;
+return (
+<div
+role="status"
+aria-live="polite"
+style={{
+        margin: '1rem 0 1.25rem',
+        padding: '0.875rem 1rem',
+        borderRadius: 8,
+        border: '1px solid var(--ifm-color-success-contrast-background, #c8e6c9)',
+        background: 'var(--ifm-color-success-contrast-background, #e8f5e9)',
+        color: 'var(--ifm-color-success-contrast-foreground, #1b5e20)',
+        fontWeight: 600,
+      }}
+>
+Dziękujemy! Twoja wiadomość została wysłana ✅
+</div>
+);
+}
+
+/**
+ * Strona kontaktowa
+ *
+ * WYMAGANE przez Netlify:
+ *  - <form name="contact" method="POST" data-netlify="true">
+ *  - ukryte <input type="hidden" name="form-name" value="contact" />
+ *  - atrybut honeypot: netlify-honeypot="bot-field" + ukryte pole "bot-field"
+ *  - (opcjonalnie) data-netlify-recaptcha="true" + <div data-netlify-recaptcha="true"></div>
+ *
+ * Po wysłaniu przekierowujemy na /contact?success=1 (action z query param)
+*/
+export default function ContactPage() {
+return (
+    <section style={{maxWidth: 860, margin: '0 auto'}}>
+        <h1>Skontaktuj się z nami</h1>
+        <p>
+            Masz pytania, uwagi lub chcesz nawiązać współpracę? Wypełnij formularz –
+            odpowiemy możliwie szybko.
+        </p>
+
+        {/* Komunikat sukcesu po przekierowaniu */}
+        <SuccessNotice />
+
+        <form
+        name="contact"
+        method="POST"
+        action="/contact?success=1"
+        data-netlify="true"
+        netlify-honeypot="bot-field"
+        // Odkomentuj poniższą linię, jeśli chcesz użyć reCAPTCHA Netlify:
+        // data-netlify-recaptcha="true"
+        style={{
+        display: 'grid',
+        gap: '1rem',
+        marginTop: '1rem',
+        border: '1px solid var(--ifm-color-emphasis-300, #bdbdbd)',
+        borderRadius: 12,
+        padding: 16,
+        background: 'var(--ifm-background-surface-color, #fff)',
+    }}
+        >
+        {/* WYMAGANE – ukryty identyfikator formularza dla Netlify */}
+        <input type="hidden" name="form-name" value="contact" />
+
+        {/* Honeypot – ukryte pole anty-spam (NIE USUWAĆ NAZW) */}
+        <p style={{display: 'none'}}>
+            <label>
+                Nie wypełniaj tego pola:{' '}
+                <input name="bot-field" />
+            </label>
+        </p>
+
+        {/* Imię i nazwisko */}
+        <div>
+            <label htmlFor="contact-name" style={{fontWeight: 600}}>Imię i nazwisko</label>
+            <input
+            id="contact-name"
+            name="name"
+            type="text"
+            required
+            autoComplete="name"
+            placeholder="Jan Kowalski"
+            style={{
+            width: '100%',
+            padding: '10px 12px',
+            borderRadius: 8,
+            border: '1px solid var(--ifm-color-emphasis-300, #bdbdbd)',
+            background: 'var(--ifm-background-color, #fff)',
+        }}
+            />
+        </div>
+
+        {/* E-mail */}
+        <div>
+            <label htmlFor="contact-email" style={{fontWeight: 600}}>Adres e‑mail</label>
+            <input
+            id="contact-email"
+            name="email"
+            type="email"
+            required
+            autoComplete="email"
+            placeholder="twoj@email.com"
+            style={{
+            width: '100%',
+            padding: '10px 12px',
+            borderRadius: 8,
+            border: '1px solid var(--ifm-color-emphasis-300, #bdbdbd)',
+            background: 'var(--ifm-background-color, #fff)',
+        }}
+            />
+        </div>
+
+        {/* Temat */}
+        <div>
+            <label htmlFor="contact-subject" style={{fontWeight: 600}}>Temat</label>
+            <input
+            id="contact-subject"
+            name="subject"
+            type="text"
+            required
+            placeholder="Temat wiadomości"
+            style={{
+            width: '100%',
+            padding: '10px 12px',
+            borderRadius: 8,
+            border: '1px solid var(--ifm-color-emphasis-300, #bdbdbd)',
+            background: 'var(--ifm-background-color, #fff)',
+        }}
+            />
+        </div>
+
+        {/* Wiadomość */}
+        <div>
+            <label htmlFor="contact-message" style={{fontWeight: 600}}>Wiadomość</label>
+            <textarea
+            id="contact-message"
+            name="message"
+            required
+            rows={6}
+            placeholder="W czym możemy pomóc?"
+            style={{
+            width: '100%',
+            padding: '10px 12px',
+            borderRadius: 8,
+            border: '1px solid var(--ifm-color-emphasis-300, #bdbdbd)',
+            background: 'var(--ifm-background-color, #fff)',
+        }}
+            />
+        </div>
+
+        {/* Zgoda RODO / regulamin – przykładowe pole checkbox */}
+        <div style={{display: 'flex', alignItems: 'flex-start', gap: 10}}>
+            <input
+            id="contact-consent"
+            name="consent"
+            type="checkbox"
+            required
+            style={{marginTop: 4}}
+            />
+            <label htmlFor="contact-consent">
+                Wyrażam zgodę na przetwarzanie moich danych osobowych w celu obsługi zapytania
+                zgodnie z naszą polityką prywatności.
+            </label>
+        </div>
+
+        {/* (Opcjonalnie) reCAPTCHA box Netlify – odkomentuj, jeśli włączyłeś data-netlify-recaptcha */}
+        {/* <div data-netlify-recaptcha="true" /> */}
+
+        <div style={{display: 'flex', gap: 12, alignItems: 'center'}}>
+            <button
+            type="submit"
+            style={{
+            padding: '10px 16px',
+            borderRadius: 10,
+            border: '1px solid transparent',
+            background: 'var(--ifm-color-primary)',
+            color: '#fff',
+            fontWeight: 700,
+            cursor: 'pointer',
+        }}
+            >
+            Wyślij wiadomość
+        </button>
+        <span style={{opacity: 0.75, fontSize: 14}}>
+            Odpowiadamy zazwyczaj w ciągu 1–2 dni roboczych.
+          </span>
+    </div>
+</form>
+
+<hr style={{margin: '2rem 0'}} />
+
+<h2>Inne formy kontaktu</h2>
+<ul>
+    <li>E‑mail: <a href="mailto:kontakt@example.com">kontakt@example.com</a></li>
+    <li>Telefon: <a href="tel:+48123123123">+48 123 123 123</a></li>
+</ul>
+</section>
+);
+}
