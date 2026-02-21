@@ -11,8 +11,8 @@ const config = {
     v4: true,
   },
 
-  url: 'https://ElTarzano.github.io',
-  baseUrl: '/maciek_pl/',
+  url: 'https://maciektest.netlify.app/',
+  baseUrl: '/',
   organizationName: 'ElTarzano',
   projectName: 'maciek_pl',
   deploymentBranch: "gh-pages",
