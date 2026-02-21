@@ -12,7 +12,7 @@ const config = {
   },
 
   url: 'https://ElTarzano.github.io',
-  baseUrl: '/maciek_pl/',
+  baseUrl: '/',
   organizationName: 'ElTarzano',
   projectName: 'maciek_pl',
   deploymentBranch: "gh-pages",
