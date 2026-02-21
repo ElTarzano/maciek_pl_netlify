@@ -7,86 +7,10 @@ description: Skontaktuj się z nami — adres e‑mail, telefon oraz formularz k
 
 Chętnie odpowiemy na Twoje pytania. Skorzystaj z danych kontaktowych poniżej lub wypełnij formularz.
 
-## Dane kontaktowe
 
-- **E‑mail:** <a href="mailto:kontakt@twojadomena.pl">kontakt@twojadomena.pl</a>
-- **Telefon:** <a href="tel:+48123123123">+48 123 123 123</a>
-- **Adres:** ul. Przykładowa 1, 31‑000 Kraków
-
-> **Godziny dostępności**
->
-> Poniedziałek–Piątek: 9:00–17:00
-> W pozostałych godzinach napisz e‑mail — odpowiemy najszybciej jak to możliwe.
-
-## Formularz kontaktowy
-
-Poniższy formularz jest przygotowany do obsługi przez **Netlify Forms**.
-Po wdrożeniu na Netlify, zgłoszenia będą widoczne w panelu Netlify → **Forms**.
-
-<form
-    name="contact"
-    method="POST"
-    data-netlify="true"
-    netlify-honeypot="bot-field"
->
-    <input type="hidden" name="form-name" value="contact" />
-
-    <p hidden>
-        <label>Nie wypełniaj tego pola: <input name="bot-field" /></label>
-    </p>
-
-    <p>
-        <label>Imię i nazwisko<br />
-            <input type="text" name="name" required />
-        </label>
-    </p>
-
-    <p>
-        <label>Adres e‑mail<br />
-            <input type="email" name="email" required />
-        </label>
-    </p>
-
-    <p>
-        <label>Temat<br />
-            <input type="text" name="subject" />
-        </label>
-    </p>
-
-    <p>
-        <label>Wiadomość<br />
-            <textarea name="message" rows="6" required></textarea>
-        </label>
-    </p>
-
-    <p>
-        <label>
-            <input type="checkbox" name="consent" required />
-            Wyrażam zgodę na przetwarzanie moich danych w celu obsługi zapytania.
-        </label>
-    </p>
-
-    <p>
-        <button type="submit">Wyślij</button>
-    </p>
+<form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+    <div style="display:none">
+        <label>Don’t fill this out if you're human: <input name="bot-field" /></label>
+    </div>
+    <!-- reszta pól -->
 </form>
-
----
-
-### Jak działają zgłoszenia z formularza (Netlify)
-
-- Ten formularz używa atrybutu `data-netlify="true"` i ukrytego pola `form-name`, dzięki czemu Netlify automatycznie go wykrywa.
-- Pierwsze wdrożenie: czasem Netlify wymaga, aby formularz istniał w **zbudowanym HTML** — ten plik to zapewnia.
-- (Opcjonalnie) aby włączyć reCAPTCHA v2, dodaj w formularzu atrybut `data-netlify-recaptcha="true"` i widget `<div data-netlify-recaptcha="true"></div>`.
-
-> **RODO / Informacja o danych**
->
-> Administratorem danych jest [Twoja Firma]. Dane podane w formularzu będą przetwarzane wyłącznie w celu obsługi Twojego zapytania. Masz prawo dostępu, sprostowania i usunięcia danych.
-
-## Częste pytania (FAQ)
-
-**Czy mogę dołączyć załącznik?**
-W tej wersji formularz nie obsługuje uploadu plików. Jeśli chcesz, mogę dodać pole `input type="file"` wraz z ustawieniami Netlify.
-
-**Kiedy odpowiadacie?**
-Zwykle w ciągu 1–2 dni roboczych.
