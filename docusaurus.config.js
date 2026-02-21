@@ -15,7 +15,6 @@ const config = {
   baseUrl: '/',
   organizationName: 'ElTarzano',
   projectName: 'maciek_pl',
-  deploymentBranch: "gh-pages",
   onBrokenLinks: 'throw',
 
   i18n: {
