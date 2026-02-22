@@ -1,0 +1,247 @@
+/* ═══════════════════════════════════════
+   Wrapper
+═══════════════════════════════════════ */
+.wrapper {
+    max-width: 760px;
+}
+
+/* ═══════════════════════════════════════
+   Karty kontaktowe — całe jako linki
+═══════════════════════════════════════ */
+.contactGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin: 24px 0 32px;
+}
+
+.contactCard {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    border-radius: 12px;
+    border: 1.5px solid var(--ifm-color-emphasis-200);
+    background: var(--ifm-card-background-color, var(--ifm-background-surface-color));
+    text-decoration: none;
+    color: inherit;
+    transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+}
+
+.contactCard:hover {
+    border-color: var(--ifm-color-primary-light);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    transform: translateY(-3px);
+    text-decoration: none;
+    color: inherit;
+}
+
+.contactIcon {
+    font-size: 26px;
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+.contactCardText strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ifm-color-emphasis-600);
+    margin-bottom: 2px;
+}
+
+.contactCardText p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--ifm-font-color-base);
+}
+
+/* ═══════════════════════════════════════
+   Formularz
+═══════════════════════════════════════ */
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.formRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 640px) {
+    .formRow {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ═══════════════════════════════════════
+   Floating label group — boxed style
+═══════════════════════════════════════ */
+.floatGroup {
+    position: relative;
+    /* Miejsce na label unoszący się ponad ramką */
+    padding-top: 10px;
+}
+
+/* ── Input / Textarea ── */
+.floatInput {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    /* Wyrównanie tekstu: równe paddingi góra/dół */
+    padding: 12px 14px;
+    font-size: 15px;
+    font-family: inherit;
+    line-height: 1.4;
+    color: #1c1c1c;
+    background: #fff;
+    border: 1.5px solid #bbb;
+    border-radius: 6px;
+    -webkit-border-radius: 6px;
+    outline: none;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    transition: border-color 0.2s ease;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+[data-theme='dark'] .floatInput {
+    color: #f0f0f0;
+    background: #1b1b1d;
+    border-color: #555;
+}
+
+.floatInput:focus {
+    border-color: var(--ifm-color-primary);
+    outline: none;
+    box-shadow: none;
+}
+
+/* ── Select ── */
+.floatSelect {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+}
+
+.floatInput option {
+    background-color: #ffffff;
+    color: #1c1c1c;
+}
+
+[data-theme='dark'] .floatInput option {
+    background-color: #1b1b1d;
+    color: #f0f0f0;
+}
+
+/* ── Floating label ──
+   Domyślnie wewnątrz pola, unosi się ponad ramką przy focus/fill */
+.floatLabel {
+    position: absolute;
+    /* padding-top(10) + padding inputu(12) + połowa line-height ≈ środek inputu */
+    top: 22px;
+    left: 14px;
+    font-size: 15px;
+    color: #888;
+    pointer-events: none;
+    transform-origin: left center;
+    transition: transform 0.2s ease, color 0.2s ease, background 0.2s ease;
+    padding: 0 4px;
+    border-radius: 3px;
+    background: transparent;
+    line-height: 1.4;
+    /* Wyrównanie z tekstem w inpucie */
+    margin-top: 1px;
+}
+
+[data-theme='dark'] .floatLabel {
+    color: #aaa;
+}
+
+/* Unosi się ponad ramką */
+.floatInput:focus ~ .floatLabel,
+.floatInput:not(:placeholder-shown) ~ .floatLabel {
+    transform: translateY(-22px) scale(0.82);
+    color: var(--ifm-color-primary);
+    font-weight: 600;
+    background: #fff;
+}
+
+[data-theme='dark'] .floatInput:focus ~ .floatLabel,
+[data-theme='dark'] .floatInput:not(:placeholder-shown) ~ .floatLabel {
+    background: #1b1b1d;
+}
+
+/* Select — label zawsze uniesiona */
+.floatLabelSelect {
+    transform: translateY(-22px) scale(0.82);
+    color: var(--ifm-color-primary);
+    font-weight: 600;
+    background: #fff;
+}
+
+[data-theme='dark'] .floatLabelSelect {
+    background: #1b1b1d;
+}
+
+/* ── Textarea ── */
+.floatTextarea {
+    resize: vertical;
+    min-height: 130px;
+    line-height: 1.6;
+    padding-top: 16px;
+}
+
+.floatTextarea ~ .floatLabel {
+    top: 26px;
+}
+
+/* ═══════════════════════════════════════
+   Przycisk
+═══════════════════════════════════════ */
+.button {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 28px;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    border: none;
+    border-radius: var(--ifm-button-border-radius, 6px);
+    background: var(--ifm-color-primary-darker);
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.15s ease;
+    margin-top: 4px;
+}
+
+.button:hover {
+    background: var(--ifm-color-primary);
+    transform: translateY(-1px);
+}
+
+.button:active {
+    background: var(--ifm-color-primary-dark);
+    transform: translateY(0);
+}
+
+.btnIcon {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+
+.button:hover .btnIcon {
+    transform: translateX(3px) translateY(-2px);
+}

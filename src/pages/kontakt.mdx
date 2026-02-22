@@ -1,77 +1,12 @@
 ---
 title: Kontakt
-description: Skontaktuj się z nami — adres e‑mail, telefon oraz formularz kontaktowy (Netlify Forms).
+description: Skontaktuj się z Mackiem — formularz kontaktowy, e-mail i media społecznościowe.
 ---
 
-# Kontakt
+import KontaktForm from '@site/src/components/KontaktForm';
 
-Chętnie odpowiemy na Twoje pytania. Skorzystaj z danych kontaktowych poniżej lub wypełnij formularz.
+# 📬 Kontakt
 
-<form
-    name="contact"
-    method="POST"
-    action="/sukces"
-    data-netlify="true"
-    netlify-honeypot="bot-field"
-    style={{ maxWidth: '600px', display: 'flex', flexDirection: 'column', gap: '16px' }}
->
-    <input type="hidden" name="form-name" value="contact" />
+Masz pytania o trening, współpracę lub po prostu chcesz pogadać o wspinaniu? Napisz śmiało!
 
-    <div style={{ display: 'none' }}>
-        <label>Don't fill this out if you're human: <input name="bot-field" /></label>
-    </div>
-
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-        <label htmlFor="name">Imię i nazwisko *</label>
-        <input
-            type="text"
-            id="name"
-            name="name"
-            required
-            placeholder="Jan Kowalski"
-            style={{ padding: '8px 12px', fontSize: '16px', borderRadius: '6px', border: '1px solid #ccc' }}
-        />
-    </div>
-
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-        <label htmlFor="email">Adres e-mail *</label>
-        <input
-            type="email"
-            id="email"
-            name="email"
-            required
-            placeholder="jan@example.com"
-            style={{ padding: '8px 12px', fontSize: '16px', borderRadius: '6px', border: '1px solid #ccc' }}
-        />
-    </div>
-
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-        <label htmlFor="subject">Temat</label>
-        <input
-            type="text"
-            id="subject"
-            name="subject"
-            placeholder="Temat wiadomości"
-            style={{ padding: '8px 12px', fontSize: '16px', borderRadius: '6px', border: '1px solid #ccc' }}
-        />
-    </div>
-
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-        <label htmlFor="message">Wiadomość *</label>
-        <textarea
-            id="message"
-            name="message"
-            required
-            rows={6}
-            placeholder="Treść wiadomości..."
-            style={{ padding: '8px 12px', fontSize: '16px', borderRadius: '6px', border: '1px solid #ccc', resize: 'vertical' }}
-        />
-    </div>
-
-    <button
-        type="submit"
-        style={{ padding: '10px 24px', fontSize: '16px', backgroundColor: '#2e8555', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', alignSelf: 'flex-start' }}
-    >
-        Wyślij wiadomość
-    </button>
-</form>
+<KontaktForm />
