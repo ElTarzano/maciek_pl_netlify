@@ -276,13 +276,12 @@ export default function ClimbingCompetitions() {
                                     style={{
                                         borderBottom: '1px solid var(--ifm-color-emphasis-200)',
                                         transition: 'background 0.15s',
-                                        backgroundColor: isMistrzostwaPolski ? 'rgba(0, 0, 0, 0.15)' : 'transparent',
-                                        borderLeft: isMistrzostwaPolski ? '3px solid #f0c040' : '3px solid transparent',
+                                        backgroundColor: isMistrzostwaPolski ? 'rgba(0, 0, 0, 0.015)' : 'transparent',
                                     }}
-                                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = isMistrzostwaPolski ? 'rgba(0, 0, 0, 0.07)' : 'var(--ifm-color-emphasis-50)')}
-                                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = isMistrzostwaPolski ? 'rgba(0, 0, 0, 0.035)' : 'transparent')}
+                                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = isMistrzostwaPolski ? 'rgba(0, 0, 0, 0.04)' : 'var(--ifm-color-emphasis-50)')}
+                                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = isMistrzostwaPolski ? 'rgba(0, 0, 0, 0.015)' : 'transparent')}
                                 >
-                                    <td style={{ padding: '10px 14px', whiteSpace: 'nowrap', fontWeight: '600' }}>{comp.date}</td>
+                                    <td style={{ padding: '10px 14px', whiteSpace: 'nowrap', fontWeight: '600', borderLeft: isMistrzostwaPolski ? '3px solid #f0c040' : '3px solid transparent' }}>{comp.date}</td>
                                     <td style={{ padding: '10px 14px' }}>{comp.name}</td>
                                     <td style={{ padding: '10px 14px' }}>{comp.location}</td>
 
