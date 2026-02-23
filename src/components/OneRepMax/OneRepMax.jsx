@@ -322,9 +322,10 @@ export default function OneRepMax() {
         return PCT_ROWS.map((p) => {
             const raw = results.average * (p / 100);
             const w   = round2(roundPlates ? roundToPlate(raw) : raw);
-            return { p, w, reps: estimateRepsAtWeight(results.average, w) };
+            const wNoBw = bwMode ? round2(w - bodyWeight) : NaN;
+            return { p, w, wNoBw, reps: estimateRepsAtWeight(results.average, w) };
         });
-    }, [results, roundPlates]);
+    }, [results, roundPlates, bwMode, bodyWeight]);
 
     /* ── Ciężar dla wybranego %1RM ── */
     const sliderWeight = useMemo(() => {
@@ -333,12 +334,19 @@ export default function OneRepMax() {
         return round2(roundPlates ? roundToPlate(raw) : raw);
     }, [results, pct, roundPlates]);
 
+    /* ── Ciężar dla wybranego %1RM bez masy ciała ── */
+    const sliderWeightNoBw = useMemo(() => {
+        if (!bwMode || !Number.isFinite(sliderWeight)) return NaN;
+        return round2(sliderWeight - bodyWeight);
+    }, [bwMode, sliderWeight, bodyWeight]);
+
     const highlightPct    = activeRowPct(pct);
     const isWeightInvalid = !(weight > 0);
     const isRepsInvalid   = !(reps >= 1 && reps <= 20);
 
-    /* Przełącznik zaokrąglania – wewnątrz dl.highlight */
-    const RoundSwitch = ({ ariaLabel }) => (
+    /* Przełącznik zaokrąglania – wewnątrz dl.highlight
+       sliderClass: opcjonalna klasa nadpisująca kolor slidera (switchSliderBw / switchSliderBlue) */
+    const RoundSwitch = ({ ariaLabel, sliderClass }) => (
         <dd className={styles.highlightSwitchRow}>
             <label className={styles.switch}>
                 <input
@@ -347,7 +355,7 @@ export default function OneRepMax() {
                     onChange={(e) => setRoundPlates(e.target.checked)}
                     aria-label={ariaLabel}
                 />
-                <span className={styles.switchSlider}></span>
+                <span className={sliderClass ? `${styles.switchSlider} ${sliderClass}` : styles.switchSlider}></span>
             </label>
             <span className={styles.switchLabel}>Zaokrąglij do talerzy (2,5 kg)</span>
         </dd>
@@ -469,11 +477,14 @@ export default function OneRepMax() {
                         aria-valuenow={reps} aria-valuetext={`${reps} powtórzeń`}
                         onChange={(e) => setReps(Number(e.target.value))}
                     />
-                    <NumericInput
-                        value={reps} min={1} max={20} step={1}
-                        ariaLabel="Powtórzenia" className={styles.number}
-                        onCommit={(v) => setReps(Math.round(v))}
-                    />
+                    <div className={styles.inputSuffix}>
+                        <NumericInput
+                            value={reps} min={1} max={20} step={1}
+                            ariaLabel="Powtórzenia" className={`${styles.number} ${styles.numberWide}`}
+                            onCommit={(v) => setReps(Math.round(v))}
+                        />
+                        <span className={styles.suffix}>powt.</span>
+                    </div>
                 </div>
                 {isRepsInvalid && (
                     <div style={{ color: 'var(--ifm-color-danger)' }}>Zakres 1–20 powtórzeń.</div>
@@ -501,7 +512,7 @@ export default function OneRepMax() {
                                 <dd className={styles.highlightValue}>
                                     {results.averageNoBw} kg
                                 </dd>
-                                <RoundSwitch ariaLabel="Zaokrąglij wynik bez masy ciała do talerzy (2,5 kg)" />
+                                <RoundSwitch ariaLabel="Zaokrąglij wynik bez masy ciała do talerzy (2,5 kg)" sliderClass={styles.switchSliderBw} />
                             </dl>
                         )}
                     </div>
@@ -560,11 +571,14 @@ export default function OneRepMax() {
                                 aria-valuenow={pct} aria-valuetext={`${pct}%`}
                                 onChange={(e) => setPct(Number(e.target.value))}
                             />
-                            <NumericInput
-                                value={pct} min={PCT_MIN} max={PCT_MAX} step={1}
-                                ariaLabel="Procent 1RM" className={styles.number}
-                                onCommit={(v) => setPct(Math.round(v))}
-                            />
+                            <div className={styles.inputSuffix}>
+                                <NumericInput
+                                    value={pct} min={PCT_MIN} max={PCT_MAX} step={1}
+                                    ariaLabel="Procent 1RM" className={`${styles.number} ${styles.numberNarrow}`}
+                                    onCommit={(v) => setPct(Math.round(v))}
+                                />
+                                <span className={styles.suffix}>%</span>
+                            </div>
                         </div>
                         <p className={styles.pctHint}>
                             Orientacyjnie: Siła maksymalna ~80–100% 1RM; Hipertrofia (przyrost masy mięśniowej) ~60–80% 1RM; Wytrzymałość mięśniowa &lt;60% 1RM.{' '}
@@ -574,17 +588,28 @@ export default function OneRepMax() {
                         </p>
                     </div>
 
-                    {/* ── Wybrany ciężar + tylko zaokrąglanie (bez przełącznika formuł) ── */}
-                    <dl
-                        className={`${styles.highlight} ${styles.highlightSelected}`}
-                        style={{ marginBottom: 16 }}
-                    >
-                        <dt className={styles.highlightLabel}>Ciężar dla {pct}% 1RM</dt>
-                        <dd className={styles.highlightValue}>
-                            {Number.isFinite(sliderWeight) ? `${sliderWeight} kg` : '—'}
-                        </dd>
-                        <RoundSwitch ariaLabel="Zaokrąglij wybrany ciężar do talerzy (2,5 kg)" />
-                    </dl>
+                    {/* ── Wybrany ciężar + opcjonalnie "bez masy ciała" jako równorzędne bloki ── */}
+                    <div className={styles.highlightRow} style={{ marginBottom: 16 }}>
+                        <dl
+                            className={`${styles.highlight} ${styles.highlightSelected}`}
+                            style={{ flex: 1 }}
+                        >
+                            <dt className={styles.highlightLabel}>Ciężar dla {pct}% 1RM</dt>
+                            <dd className={styles.highlightValue}>
+                                {Number.isFinite(sliderWeight) ? `${sliderWeight} kg` : '—'}
+                            </dd>
+                            <RoundSwitch ariaLabel="Zaokrąglij wybrany ciężar do talerzy (2,5 kg)" sliderClass={styles.switchSliderBlue} />
+                        </dl>
+                        {bwMode && Number.isFinite(sliderWeightNoBw) && (
+                            <dl className={`${styles.highlight} ${styles.highlightBw}`} style={{ flex: 1 }}>
+                                <dt className={styles.highlightLabel}>Ciężar dla {pct}% 1RM bez MC</dt>
+                                <dd className={styles.highlightValue}>
+                                    {sliderWeightNoBw} kg
+                                </dd>
+                                <RoundSwitch ariaLabel="Zaokrąglij ciężar bez masy ciała do talerzy (2,5 kg)" sliderClass={styles.switchSliderBw} />
+                            </dl>
+                        )}
+                    </div>
 
                     {/* ── Tabela + wizualizacja ── */}
                     {percentRows.length > 0 && (
@@ -597,6 +622,7 @@ export default function OneRepMax() {
                                         <tr>
                                             <th>% 1RM</th>
                                             <th>Ciężar (kg)</th>
+                                            {bwMode && <th>Ciężar - MC (kg)</th>}
                                             <th>Szac. max powt.</th>
                                         </tr>
                                         </thead>
@@ -607,7 +633,12 @@ export default function OneRepMax() {
                                                 className={row.p === highlightPct ? styles.rowActive : undefined}
                                             >
                                                 <td>{row.p}%</td>
-                                                <td>{row.w} kg</td>
+                                                <td className={styles.tdBlue}>{row.w} kg</td>
+                                                {bwMode && (
+                                                    <td className={styles.tdBw}>
+                                                        {Number.isFinite(row.wNoBw) ? `${row.wNoBw} kg` : '—'}
+                                                    </td>
+                                                )}
                                                 <td>{Number.isFinite(row.reps) ? row.reps : '—'}</td>
                                             </tr>
                                         ))}

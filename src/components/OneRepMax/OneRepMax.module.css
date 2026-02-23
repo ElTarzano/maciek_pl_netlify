@@ -103,6 +103,11 @@
 }
 .switch input:checked + .switchSlider { background: var(--orm-primary); }
 .switch input:checked + .switchSlider::before { transform: translateX(20px); }
+
+/* Warianty kolorystyczne slidera */
+.switch input:checked + .switchSliderBw  { background: var(--orm-bw); }
+.switch input:checked + .switchSliderBlue { background: #2980b9; }
+
 .switchLabel { margin-left: 4px; user-select: none; }
 
 /* ── Układ wiersza suwaka ── */
@@ -120,6 +125,16 @@
   border-radius: 8px;
   border: 1px solid var(--ifm-color-emphasis-300, #bdbdbd);
   background: var(--ifm-background-color, #fff);
+}
+/* Szersze pole – dla sufiksu "powt." */
+.numberWide {
+  width: 110px;
+  padding-right: 46px;
+}
+/* Węższe pole – dla sufiksu "%" */
+.numberNarrow {
+  width: 80px;
+  padding-right: 28px;
 }
 .number:focus { outline: 2px solid rgba(46, 133, 64, 0.35); }
 .number::-webkit-inner-spin-button,
@@ -180,6 +195,14 @@
 .highlightRow > dl {
   min-width: 0;
   /* flex: 1 ustawiane inline */
+}
+@media (max-width: 600px) {
+  .highlightRow {
+    flex-direction: column;
+  }
+  .highlightRow > dl {
+    flex: 1 1 100% !important;
+  }
 }
 
 /* ── Blok wyróżniony (Średnia / Ciężar dla) ── */
@@ -281,6 +304,24 @@
   font-weight: 700;
 }
 .rowActive td { color: var(--orm-primary); }
+
+/* Kolumna "Ciężar (kg)" – niebieski akcent jak highlight */
+.tdBlue {
+  color: #2980b9;
+  font-weight: 600;
+}
+.rowActive .tdBlue {
+  color: #2980b9;
+}
+
+/* Kolumna "Ciężar - MC" – fioletowy akcent */
+.tdBw {
+  color: var(--orm-bw);
+  font-weight: 600;
+}
+.rowActive .tdBw {
+  color: var(--orm-bw);
+}
 
 /* ── Wizualizacja talerzy ── */
 .vizWrap {
