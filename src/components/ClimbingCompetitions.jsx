@@ -287,10 +287,7 @@ export default function ClimbingCompetitions() {
                                     key={rowKey}
                                     style={{
                                         borderBottom: '1px solid var(--ifm-color-emphasis-200)',
-                                        transition: 'background 0.15s',
                                     }}
-                                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--ifm-color-emphasis-50)')}
-                                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
                                 >
                                     <td style={{ padding: '10px 14px', whiteSpace: 'nowrap', fontWeight: '600' }}>{comp.date}</td>
                                     <td style={{ padding: '10px 14px' }}>{comp.name}</td>
