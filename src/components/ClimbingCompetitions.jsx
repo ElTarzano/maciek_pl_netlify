@@ -1,9 +1,18 @@
 import { useState, useEffect } from 'react';
 
+// ── Stałe ─────────────────────────────────────────────────────────────────────
+
 const TYPE_LABELS = {
-    bouldering: { label: 'Bouldering', color: '#e67e22' },
+    bouldering: { label: 'Bouldering',  color: '#e67e22' },
     lead:       { label: 'Prowadzenie', color: '#2e86c1' },
-    speed:      { label: 'Szybkość',    color: '#27ae60' },
+    speed:      { label: 'Czasówki',    color: '#27ae60' },
+};
+
+// Skróty w nawiasach → klucz TYPE_LABELS
+const TYPE_ABBR = {
+    B: 'bouldering',
+    P: 'lead',
+    C: 'speed',
 };
 
 const AGE_CATEGORIES = {
@@ -17,6 +26,39 @@ const AGE_CATEGORIES = {
 };
 
 const AGE_KEYS = ['DM', 'JM', 'Mł', 'D', 'J', 'M', 'S'];
+
+// ── Parsowanie typów z nazwy ───────────────────────────────────────────────────
+
+/**
+ * Wyciąga typy dyscyplin z nawiasów w nazwie.
+ * Np. "(P, C) / (B)" → ['lead', 'speed', 'bouldering']
+ * Jeśli w nawiasach nie ma skrótów dyscyplin, ignoruje tę grupę (np. kategorie wiekowe).
+ * Jako fallback używa comp.type z API.
+ */
+function extractTypes(name, apiType) {
+    const found = new Set();
+
+    if (name) {
+        // Znajdź wszystkie grupy w nawiasach
+        const groups = [...name.matchAll(/\(([^)]+)\)/g)];
+        groups.forEach(([, inner]) => {
+            inner.split(/[,\s]+/).forEach((token) => {
+                const t = token.trim().toUpperCase();
+                if (TYPE_ABBR[t]) found.add(TYPE_ABBR[t]);
+            });
+        });
+    }
+
+    // Jeśli nic nie znaleziono w nawiasach — użyj wartości z API
+    if (found.size === 0) {
+        toArray(apiType).forEach((t) => found.add(t));
+    }
+
+    // Zachowaj stałą kolejność
+    return ['bouldering', 'lead', 'speed'].filter((k) => found.has(k));
+}
+
+// ── Parsowanie kategorii wiekowych ───────────────────────────────────────────
 
 function expandJoined(name) {
     if (!name) return name;
@@ -43,6 +85,8 @@ function toArray(value) {
     if (Array.isArray(value)) return value;
     return String(value).split(/[,;]+/).map((v) => v.trim()).filter(Boolean);
 }
+
+// ── Komponenty ────────────────────────────────────────────────────────────────
 
 function Badge({ text, bg, color }) {
     return (
@@ -92,6 +136,8 @@ function FilterButton({ active, onClick, children, color }) {
     );
 }
 
+// ── Główny komponent ──────────────────────────────────────────────────────────
+
 export default function ClimbingCompetitions() {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -124,13 +170,15 @@ export default function ClimbingCompetitions() {
     }
 
     const filtered = data.competitions.filter((c) => {
-        const matchType = typeFilter === 'all' || toArray(c.type).includes(typeFilter);
-        const matchAge  = ageFilter  === 'all' || extractCategories(c.name).includes(ageFilter);
+        const types = extractTypes(c.name, c.type);
+        const cats  = extractCategories(c.name);
+        const matchType = typeFilter === 'all' || types.includes(typeFilter);
+        const matchAge  = ageFilter  === 'all' || cats.includes(ageFilter);
         return matchType && matchAge;
     });
 
     const typeFilters = [
-        { key: 'all',        label: 'Wszystkie',   color: '#555' },
+        { key: 'all',        label: 'Wszystkie',           color: '#555' },
         { key: 'bouldering', ...TYPE_LABELS.bouldering },
         { key: 'lead',       ...TYPE_LABELS.lead },
         { key: 'speed',      ...TYPE_LABELS.speed },
@@ -211,7 +259,7 @@ export default function ClimbingCompetitions() {
                         </thead>
                         <tbody>
                         {filtered.map((comp, i) => {
-                            const types      = toArray(comp.type);
+                            const types      = extractTypes(comp.name, comp.type);
                             const categories = extractCategories(comp.name);
                             return (
                                 <tr
@@ -234,7 +282,7 @@ export default function ClimbingCompetitions() {
                                         />
                                     </td>
 
-                                    {/* Rodzaj */}
+                                    {/* Rodzaj – może być wiele */}
                                     <td style={{ padding: '10px 14px' }}>
                                         <BadgeCell
                                             items={types.map((t) => {
