@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 // ── Stałe ─────────────────────────────────────────────────────────────────────
 
@@ -8,7 +8,6 @@ const TYPE_LABELS = {
     speed:      { label: 'Czasówki',    color: '#27ae60' },
 };
 
-// Skróty w nawiasach → klucz TYPE_LABELS
 const TYPE_ABBR = {
     B: 'bouldering',
     P: 'lead',
@@ -27,19 +26,37 @@ const AGE_CATEGORIES = {
 
 const AGE_KEYS = ['DM', 'JM', 'Mł', 'D', 'J', 'M', 'S'];
 
-// ── Parsowanie typów z nazwy ───────────────────────────────────────────────────
+const TYPE_ORDER = ['bouldering', 'lead', 'speed'];
 
-/**
- * Wyciąga typy dyscyplin z nawiasów w nazwie.
- * Np. "(P, C) / (B)" → ['lead', 'speed', 'bouldering']
- * Jeśli w nawiasach nie ma skrótów dyscyplin, ignoruje tę grupę (np. kategorie wiekowe).
- * Jako fallback używa comp.type z API.
- */
+// ── Style (poza komponentem — nie redefiniowane przy każdym renderze) ──────────
+
+const filterGroupStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '6px',
+    marginBottom: '10px',
+};
+
+const filterButtonsStyle = {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '8px',
+};
+
+const filterLabelStyle = {
+    fontSize: '12px',
+    fontWeight: '700',
+    color: '#888',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+};
+
+// ── Parsowanie typów ──────────────────────────────────────────────────────────
+
 function extractTypes(name, apiType) {
     const found = new Set();
 
     if (name) {
-        // Znajdź wszystkie grupy w nawiasach
         const groups = [...name.matchAll(/\(([^)]+)\)/g)];
         groups.forEach(([, inner]) => {
             inner.split(/[,\s]+/).forEach((token) => {
@@ -49,22 +66,27 @@ function extractTypes(name, apiType) {
         });
     }
 
-    // Jeśli nic nie znaleziono w nawiasach — użyj wartości z API
     if (found.size === 0) {
         toArray(apiType).forEach((t) => found.add(t));
     }
 
-    // Zachowaj stałą kolejność
-    return ['bouldering', 'lead', 'speed'].filter((k) => found.has(k));
+    return TYPE_ORDER.filter((k) => found.has(k));
 }
 
 // ── Parsowanie kategorii wiekowych ───────────────────────────────────────────
 
+// FIX: pętla do momentu braku zmian, by obsłużyć np. "JiMiS" → "J M S"
 function expandJoined(name) {
     if (!name) return name;
     const alt = AGE_KEYS.map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
     const joinedRe = new RegExp(`(${alt})i(${alt})`, 'gu');
-    return name.replace(joinedRe, '$1 $2');
+    let prev;
+    let result = name;
+    do {
+        prev = result;
+        result = prev.replace(joinedRe, '$1 $2');
+    } while (result !== prev);
+    return result;
 }
 
 function extractCategories(name) {
@@ -147,10 +169,24 @@ export default function ClimbingCompetitions() {
 
     useEffect(() => {
         fetch('/api/climbing-competitions')
-            .then((res) => res.json())
+            .then((res) => {
+                // FIX: jawne sprawdzenie statusu HTTP
+                if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                return res.json();
+            })
             .then((json) => { setData(json); setLoading(false); })
             .catch((err) => { setError(err.message); setLoading(false); });
     }, []);
+
+    // FIX: parsowanie raz per zawody, zapamiętane przez useMemo
+    const enriched = useMemo(() => {
+        if (!data?.competitions) return [];
+        return data.competitions.map((comp) => ({
+            ...comp,
+            _types: extractTypes(comp.name, comp.type),
+            _categories: extractCategories(comp.name),
+        }));
+    }, [data]);
 
     if (loading) {
         return (
@@ -169,16 +205,14 @@ export default function ClimbingCompetitions() {
         );
     }
 
-    const filtered = data.competitions.filter((c) => {
-        const types = extractTypes(c.name, c.type);
-        const cats  = extractCategories(c.name);
-        const matchType = typeFilter === 'all' || types.includes(typeFilter);
-        const matchAge  = ageFilter  === 'all' || cats.includes(ageFilter);
+    const filtered = enriched.filter((c) => {
+        const matchType = typeFilter === 'all' || c._types.includes(typeFilter);
+        const matchAge  = ageFilter  === 'all' || c._categories.includes(ageFilter);
         return matchType && matchAge;
     });
 
     const typeFilters = [
-        { key: 'all',        label: 'Wszystkie',           color: '#555' },
+        { key: 'all',        label: 'Wszystkie',  color: '#555' },
         { key: 'bouldering', ...TYPE_LABELS.bouldering },
         { key: 'lead',       ...TYPE_LABELS.lead },
         { key: 'speed',      ...TYPE_LABELS.speed },
@@ -192,27 +226,6 @@ export default function ClimbingCompetitions() {
             color: AGE_CATEGORIES[k].color,
         })),
     ];
-
-    const filterGroupStyle = {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '6px',
-        marginBottom: '10px',
-    };
-
-    const filterButtonsStyle = {
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: '8px',
-    };
-
-    const filterLabelStyle = {
-        fontSize: '12px',
-        fontWeight: '700',
-        color: '#888',
-        textTransform: 'uppercase',
-        letterSpacing: '0.05em',
-    };
 
     return (
         <div style={{ margin: '24px 0' }}>
@@ -266,12 +279,12 @@ export default function ClimbingCompetitions() {
                         </tr>
                         </thead>
                         <tbody>
-                        {filtered.map((comp, i) => {
-                            const types      = extractTypes(comp.name, comp.type);
-                            const categories = extractCategories(comp.name);
+                        {filtered.map((comp) => {
+                            // FIX: stabilny klucz zamiast indeksu tablicy
+                            const rowKey = `${comp.date}-${comp.name}`;
                             return (
                                 <tr
-                                    key={i}
+                                    key={rowKey}
                                     style={{
                                         borderBottom: '1px solid var(--ifm-color-emphasis-200)',
                                         transition: 'background 0.15s',
@@ -283,20 +296,18 @@ export default function ClimbingCompetitions() {
                                     <td style={{ padding: '10px 14px' }}>{comp.name}</td>
                                     <td style={{ padding: '10px 14px' }}>{comp.location}</td>
 
-                                    {/* Kategorie wiekowe */}
                                     <td style={{ padding: '10px 14px' }}>
                                         <BadgeCell
-                                            items={categories.map((cat) => {
+                                            items={comp._categories.map((cat) => {
                                                 const info = AGE_CATEGORIES[cat];
                                                 return <Badge key={cat} text={info.label} bg={info.bg} color={info.color} />;
                                             })}
                                         />
                                     </td>
 
-                                    {/* Rodzaj – może być wiele */}
                                     <td style={{ padding: '10px 14px' }}>
                                         <BadgeCell
-                                            items={types.map((t) => {
+                                            items={comp._types.map((t) => {
                                                 const info = TYPE_LABELS[t] || { label: t, color: '#999' };
                                                 return <Badge key={t} text={info.label} bg={info.color + '22'} color={info.color} />;
                                             })}
