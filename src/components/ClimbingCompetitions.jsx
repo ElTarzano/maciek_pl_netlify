@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const TYPE_LABELS = {
     bouldering: { label: '🪨 Bouldering', color: '#e67e22' },
@@ -7,105 +7,195 @@ const TYPE_LABELS = {
 };
 
 const LEVEL_LABELS = {
-    lokalny:        { label: 'Lokalny',         bg: '#f0f0f0', color: '#555' },
-    regionalny:     { label: 'Regionalny',       bg: '#dbeafe', color: '#1d4ed8' },
-    ogólnopolski:   { label: 'Ogólnopolski',     bg: '#dcfce7', color: '#166534' },
-    międzynarodowy: { label: 'Międzynarodowy',   bg: '#fef9c3', color: '#854d0e' },
+    lokalny:        { label: 'Lokalny',       bg: '#f0f0f0', color: '#555' },
+    regionalny:     { label: 'Regionalny',     bg: '#dbeafe', color: '#1d4ed8' },
+    ogólnopolski:   { label: 'Ogólnopolski',   bg: '#dcfce7', color: '#166534' },
+    międzynarodowy: { label: 'Międzynarodowy', bg: '#fef9c3', color: '#854d0e' },
 };
 
 const AGE_CATEGORIES = {
-    DM:  { label: 'DM',  title: 'Dziecko młodsze (≥2016)',   bg: '#fce4ec', color: '#c2185b' },
-    D:   { label: 'D',   title: 'Dziecko (2014–2015)',        bg: '#f3e5f5', color: '#7b1fa2' },
-    'Mł':{ label: 'Mł',  title: 'Młodzik (2012–2013)',        bg: '#e8eaf6', color: '#303f9f' },
-    JM:  { label: 'JM',  title: 'Junior młodszy (2010–2011)', bg: '#e3f2fd', color: '#1565c0' },
-    J:   { label: 'J',   title: 'Junior (2008–2009)',         bg: '#e0f7fa', color: '#00695c' },
-    M:   { label: 'M',   title: 'Młodzieżowiec (2006–2007)',  bg: '#e8f5e9', color: '#2e7d32' },
-    S:   { label: 'S',   title: 'Senior (≤2005)',             bg: '#fff8e1', color: '#e65100' },
+    DM: { label: 'DM', tooltip: 'Dziecko młodsze (≥2016)',   bg: '#fce4ec', color: '#c2185b' },
+    D:  { label: 'D',  tooltip: 'Dziecko (2014–2015)',        bg: '#f3e5f5', color: '#7b1fa2' },
+    Mł: { label: 'Mł', tooltip: 'Młodzik (2012–2013)',        bg: '#e8eaf6', color: '#303f9f' },
+    JM: { label: 'JM', tooltip: 'Junior młodszy (2010–2011)', bg: '#e3f2fd', color: '#1565c0' },
+    J:  { label: 'J',  tooltip: 'Junior (2008–2009)',         bg: '#e0f7fa', color: '#00695c' },
+    M:  { label: 'M',  tooltip: 'Młodzieżowiec (2006–2007)',  bg: '#e8f5e9', color: '#2e7d32' },
+    S:  { label: 'S',  tooltip: 'Senior (≤2005)',             bg: '#fff8e1', color: '#e65100' },
 };
 
-// Sorted longest-first so "DM"/"JM"/"Mł" are matched before "D"/"M"/"J"
-const AGE_KEYS_SORTED = ['DM', 'JM', 'Mł', 'D', 'J', 'M', 'S'];
+// Ordered longest-first so two-letter codes match before single-letter ones
+const AGE_KEYS = ['DM', 'JM', 'Mł', 'D', 'J', 'M', 'S'];
+
+// Patterns like "SiM", "DiMł", "JiS" → expand to individual tokens separated by space
+function expandJoined(name) {
+    if (!name) return name;
+    // Build alternation: longest keys first
+    const alt = AGE_KEYS.map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+    const joinedRe = new RegExp(`(${alt})i(${alt})`, 'gu');
+    return name.replace(joinedRe, '$1 $2');
+}
 
 function extractCategories(name) {
     if (!name) return [];
+    const expanded = expandJoined(name);
     const found = new Set();
-    AGE_KEYS_SORTED.forEach((key) => {
-        // Match abbreviation surrounded by non-word characters or string boundaries
+    AGE_KEYS.forEach((key) => {
         const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const regex = new RegExp(`(?:^|[^\\wŁłÓóĄąĘęŚśŹźŻżĆćŃń])${escaped}(?:$|[^\\wŁłÓóĄąĘęŚśŹźŻżĆćŃń])`, 'u');
-        if (regex.test(name)) found.add(key);
+        // Must be surrounded by non-word / non-Polish-letter chars or string boundaries
+        const boundary = '[^\\wŁłÓóĄąĘęŚśŹźŻżĆćŃń]';
+        const re = new RegExp(`(?:^|${boundary})${escaped}(?:$|${boundary})`, 'u');
+        if (re.test(expanded)) found.add(key);
     });
-    return AGE_KEYS_SORTED.filter((k) => found.has(k));
+    return AGE_KEYS.filter((k) => found.has(k));
 }
 
-// Normalise a value that may be a string, comma-separated string, or array → always returns an array
 function toArray(value) {
     if (!value) return [];
     if (Array.isArray(value)) return value;
     return String(value).split(/[,;]+/).map((v) => v.trim()).filter(Boolean);
 }
 
-const Badge = ({ text, bg, color, title }) => (
-    <span
-        title={title}
-        style={{
-            display: 'inline-block',
-            padding: '2px 8px',
-            borderRadius: '12px',
-            fontSize: '12px',
-            fontWeight: '600',
-            backgroundColor: bg,
-            color: color,
-            whiteSpace: 'nowrap',
-            cursor: title ? 'help' : 'default',
-        }}
-    >
-        {text}
-    </span>
-);
+// ── Custom tooltip ────────────────────────────────────────────────────────────
 
-const FilterButton = ({ active, onClick, children, color }) => (
-    <button
-        onClick={onClick}
-        style={{
-            padding: '6px 14px',
-            borderRadius: '20px',
-            border: 'none',
-            backgroundColor: active ? color : '#e0e0e0',
-            color: active ? '#fff' : '#555',
-            cursor: 'pointer',
-            fontSize: '13px',
-            fontWeight: '600',
-            transition: 'all 0.2s',
-        }}
-    >
-        {children}
-    </button>
-);
+function Tooltip({ text, children }) {
+    const [visible, setVisible] = useState(false);
+    const [pos, setPos] = useState({ top: 0, left: 0 });
+    const ref = useRef(null);
 
-const BadgeCell = ({ items, fallback }) => (
-    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-        {items.length > 0 ? items : <span style={{ color: '#bbb' }}>{fallback ?? '—'}</span>}
-    </div>
-);
+    const show = () => {
+        if (!ref.current) return;
+        const rect = ref.current.getBoundingClientRect();
+        setPos({
+            top: rect.top + window.scrollY - 8,
+            left: rect.left + window.scrollX + rect.width / 2,
+        });
+        setVisible(true);
+    };
+
+    return (
+        <>
+            <span
+                ref={ref}
+                onMouseEnter={show}
+                onMouseLeave={() => setVisible(false)}
+                style={{ display: 'inline-block' }}
+            >
+                {children}
+            </span>
+            {visible && (
+                <span
+                    style={{
+                        position: 'absolute',
+                        top: pos.top,
+                        left: pos.left,
+                        transform: 'translate(-50%, -100%)',
+                        backgroundColor: '#1e1e1e',
+                        color: '#fff',
+                        padding: '4px 10px',
+                        borderRadius: '6px',
+                        fontSize: '12px',
+                        fontWeight: '500',
+                        whiteSpace: 'nowrap',
+                        pointerEvents: 'none',
+                        zIndex: 9999,
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
+                    }}
+                >
+                    {text}
+                    <span
+                        style={{
+                            position: 'absolute',
+                            bottom: '-5px',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            width: 0,
+                            height: 0,
+                            borderLeft: '5px solid transparent',
+                            borderRight: '5px solid transparent',
+                            borderTop: '5px solid #1e1e1e',
+                        }}
+                    />
+                </span>
+            )}
+        </>
+    );
+}
+
+// ── Badges ────────────────────────────────────────────────────────────────────
+
+function Badge({ text, bg, color }) {
+    return (
+        <span
+            style={{
+                display: 'inline-block',
+                padding: '2px 8px',
+                borderRadius: '12px',
+                fontSize: '12px',
+                fontWeight: '600',
+                backgroundColor: bg,
+                color: color,
+                whiteSpace: 'nowrap',
+            }}
+        >
+            {text}
+        </span>
+    );
+}
+
+function AgeBadge({ cat }) {
+    const info = AGE_CATEGORIES[cat];
+    return (
+        <Tooltip text={info.tooltip}>
+            <Badge text={info.label} bg={info.bg} color={info.color} />
+        </Tooltip>
+    );
+}
+
+function BadgeCell({ items }) {
+    return (
+        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+            {items.length > 0 ? items : <span style={{ color: '#bbb' }}>—</span>}
+        </div>
+    );
+}
+
+// ── Filter button ─────────────────────────────────────────────────────────────
+
+function FilterButton({ active, onClick, children, color }) {
+    return (
+        <button
+            onClick={onClick}
+            style={{
+                padding: '6px 14px',
+                borderRadius: '20px',
+                border: 'none',
+                backgroundColor: active ? color : '#e0e0e0',
+                color: active ? '#fff' : '#555',
+                cursor: 'pointer',
+                fontSize: '13px',
+                fontWeight: '600',
+                transition: 'all 0.2s',
+            }}
+        >
+            {children}
+        </button>
+    );
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
 
 export default function ClimbingCompetitions() {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [activeFilter, setActiveFilter] = useState('all');
+    const [typeFilter, setTypeFilter] = useState('all');
+    const [ageFilter, setAgeFilter] = useState('all');
 
     useEffect(() => {
         fetch('/api/climbing-competitions')
             .then((res) => res.json())
-            .then((json) => {
-                setData(json);
-                setLoading(false);
-            })
-            .catch((err) => {
-                setError(err.message);
-                setLoading(false);
-            });
+            .then((json) => { setData(json); setLoading(false); })
+            .catch((err) => { setError(err.message); setLoading(false); });
     }, []);
 
     if (loading) {
@@ -125,27 +215,71 @@ export default function ClimbingCompetitions() {
         );
     }
 
-    const filtered =
-        activeFilter === 'all'
-            ? data.competitions
-            : data.competitions.filter((c) => toArray(c.type).includes(activeFilter));
+    const filtered = data.competitions.filter((c) => {
+        const matchType = typeFilter === 'all' || toArray(c.type).includes(typeFilter);
+        const matchAge  = ageFilter === 'all'  || extractCategories(c.name).includes(ageFilter);
+        return matchType && matchAge;
+    });
 
-    const filters = [
+    const typeFilters = [
         { key: 'all',        label: '🗓 Wszystkie',   color: '#555' },
         { key: 'bouldering', ...TYPE_LABELS.bouldering },
         { key: 'lead',       ...TYPE_LABELS.lead },
         { key: 'speed',      ...TYPE_LABELS.speed },
     ];
 
+    const ageFilters = [
+        { key: 'all', label: 'Wszystkie',         color: '#555' },
+        ...AGE_KEYS.map((k) => ({
+            key: k,
+            label: AGE_CATEGORIES[k].label,
+            color: AGE_CATEGORIES[k].color,
+        })),
+    ];
+
+    const filterGroupStyle = {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        flexWrap: 'wrap',
+        marginBottom: '10px',
+    };
+
+    const filterLabelStyle = {
+        fontSize: '12px',
+        fontWeight: '700',
+        color: '#888',
+        textTransform: 'uppercase',
+        letterSpacing: '0.05em',
+        minWidth: '120px',
+    };
+
     return (
-        <div style={{ margin: '24px 0' }}>
-            {/* Filtry */}
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '20px' }}>
-                {filters.map((f) => (
+        <div style={{ margin: '24px 0', position: 'relative' }}>
+
+            {/* Filtry – Rodzaj */}
+            <div style={filterGroupStyle}>
+                <span style={filterLabelStyle}>Rodzaj</span>
+                {typeFilters.map((f) => (
                     <FilterButton
                         key={f.key}
-                        active={activeFilter === f.key}
-                        onClick={() => setActiveFilter(f.key)}
+                        active={typeFilter === f.key}
+                        onClick={() => setTypeFilter(f.key)}
+                        color={f.color}
+                    >
+                        {f.label}
+                    </FilterButton>
+                ))}
+            </div>
+
+            {/* Filtry – Kategoria wiekowa */}
+            <div style={{ ...filterGroupStyle, marginBottom: '20px' }}>
+                <span style={filterLabelStyle}>Kategoria</span>
+                {ageFilters.map((f) => (
+                    <FilterButton
+                        key={f.key}
+                        active={ageFilter === f.key}
+                        onClick={() => setAgeFilter(f.key)}
                         color={f.color}
                     >
                         {f.label}
@@ -204,22 +338,13 @@ export default function ClimbingCompetitions() {
                                     {/* Kategorie wiekowe */}
                                     <td style={{ padding: '10px 14px' }}>
                                         <BadgeCell
-                                            items={categories.map((cat) => {
-                                                const info = AGE_CATEGORIES[cat];
-                                                return (
-                                                    <Badge
-                                                        key={cat}
-                                                        text={info.label}
-                                                        bg={info.bg}
-                                                        color={info.color}
-                                                        title={info.title}
-                                                    />
-                                                );
-                                            })}
+                                            items={categories.map((cat) => (
+                                                <AgeBadge key={cat} cat={cat} />
+                                            ))}
                                         />
                                     </td>
 
-                                    {/* Rodzaj (może być wiele) */}
+                                    {/* Rodzaj */}
                                     <td style={{ padding: '10px 14px' }}>
                                         <BadgeCell
                                             items={types.map((t) => {
