@@ -2,42 +2,47 @@ import { useState, useEffect } from 'react';
 
 const TYPE_LABELS = {
     bouldering: { label: '🪨 Bouldering', color: '#e67e22' },
-    lead: { label: '🧗 Prowadzenie', color: '#2e86c1' },
-    speed: { label: '⚡ Szybkość', color: '#27ae60' },
-    combined: { label: '🏆 Wielobój', color: '#8e44ad' },
+    lead:       { label: '🧗 Prowadzenie', color: '#2e86c1' },
+    speed:      { label: '⚡ Szybkość',    color: '#27ae60' },
 };
 
 const LEVEL_LABELS = {
-    lokalny: { label: 'Lokalny', bg: '#f0f0f0', color: '#555' },
-    regionalny: { label: 'Regionalny', bg: '#dbeafe', color: '#1d4ed8' },
-    ogólnopolski: { label: 'Ogólnopolski', bg: '#dcfce7', color: '#166534' },
-    międzynarodowy: { label: 'Międzynarodowy', bg: '#fef9c3', color: '#854d0e' },
+    lokalny:        { label: 'Lokalny',         bg: '#f0f0f0', color: '#555' },
+    regionalny:     { label: 'Regionalny',       bg: '#dbeafe', color: '#1d4ed8' },
+    ogólnopolski:   { label: 'Ogólnopolski',     bg: '#dcfce7', color: '#166534' },
+    międzynarodowy: { label: 'Międzynarodowy',   bg: '#fef9c3', color: '#854d0e' },
 };
 
 const AGE_CATEGORIES = {
-    DM:  { label: 'DM',  title: 'Dziecko młodsze (≥2016)',    bg: '#fce4ec', color: '#c2185b' },
-    D:   { label: 'D',   title: 'Dziecko (2014–2015)',         bg: '#f3e5f5', color: '#7b1fa2' },
-    'Mł': { label: 'Mł', title: 'Młodzik (2012–2013)',         bg: '#e8eaf6', color: '#303f9f' },
-    JM:  { label: 'JM',  title: 'Junior młodszy (2010–2011)',  bg: '#e3f2fd', color: '#1565c0' },
-    J:   { label: 'J',   title: 'Junior (2008–2009)',          bg: '#e0f7fa', color: '#00695c' },
-    M:   { label: 'M',   title: 'Młodzieżowiec (2006–2007)',   bg: '#e8f5e9', color: '#2e7d32' },
-    S:   { label: 'S',   title: 'Senior (≤2005)',              bg: '#fff8e1', color: '#e65100' },
+    DM:  { label: 'DM',  title: 'Dziecko młodsze (≥2016)',   bg: '#fce4ec', color: '#c2185b' },
+    D:   { label: 'D',   title: 'Dziecko (2014–2015)',        bg: '#f3e5f5', color: '#7b1fa2' },
+    'Mł':{ label: 'Mł',  title: 'Młodzik (2012–2013)',        bg: '#e8eaf6', color: '#303f9f' },
+    JM:  { label: 'JM',  title: 'Junior młodszy (2010–2011)', bg: '#e3f2fd', color: '#1565c0' },
+    J:   { label: 'J',   title: 'Junior (2008–2009)',         bg: '#e0f7fa', color: '#00695c' },
+    M:   { label: 'M',   title: 'Młodzieżowiec (2006–2007)',  bg: '#e8f5e9', color: '#2e7d32' },
+    S:   { label: 'S',   title: 'Senior (≤2005)',             bg: '#fff8e1', color: '#e65100' },
 };
 
-// Extract age category abbreviations from a competition name string
-// Expects them in parentheses, e.g. "(DM, D, Mł)" or "(S, M)"
+// Sorted longest-first so "DM"/"JM"/"Mł" are matched before "D"/"M"/"J"
+const AGE_KEYS_SORTED = ['DM', 'JM', 'Mł', 'D', 'J', 'M', 'S'];
+
 function extractCategories(name) {
-    const match = name.match(/\(([^)]+)\)/g);
-    if (!match) return [];
-    const found = [];
-    match.forEach((group) => {
-        const inner = group.slice(1, -1);
-        inner.split(/[,\s]+/).forEach((token) => {
-            const t = token.trim();
-            if (AGE_CATEGORIES[t]) found.push(t);
-        });
+    if (!name) return [];
+    const found = new Set();
+    AGE_KEYS_SORTED.forEach((key) => {
+        // Match abbreviation surrounded by non-word characters or string boundaries
+        const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`(?:^|[^\\wŁłÓóĄąĘęŚśŹźŻżĆćŃń])${escaped}(?:$|[^\\wŁłÓóĄąĘęŚśŹźŻżĆćŃń])`, 'u');
+        if (regex.test(name)) found.add(key);
     });
-    return [...new Set(found)];
+    return AGE_KEYS_SORTED.filter((k) => found.has(k));
+}
+
+// Normalise a value that may be a string, comma-separated string, or array → always returns an array
+function toArray(value) {
+    if (!value) return [];
+    if (Array.isArray(value)) return value;
+    return String(value).split(/[,;]+/).map((v) => v.trim()).filter(Boolean);
 }
 
 const Badge = ({ text, bg, color, title }) => (
@@ -76,6 +81,12 @@ const FilterButton = ({ active, onClick, children, color }) => (
     >
         {children}
     </button>
+);
+
+const BadgeCell = ({ items, fallback }) => (
+    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+        {items.length > 0 ? items : <span style={{ color: '#bbb' }}>{fallback ?? '—'}</span>}
+    </div>
 );
 
 export default function ClimbingCompetitions() {
@@ -117,14 +128,13 @@ export default function ClimbingCompetitions() {
     const filtered =
         activeFilter === 'all'
             ? data.competitions
-            : data.competitions.filter((c) => c.type === activeFilter);
+            : data.competitions.filter((c) => toArray(c.type).includes(activeFilter));
 
     const filters = [
-        { key: 'all', label: '🗓 Wszystkie', color: '#555' },
+        { key: 'all',        label: '🗓 Wszystkie',   color: '#555' },
         { key: 'bouldering', ...TYPE_LABELS.bouldering },
-        { key: 'lead', ...TYPE_LABELS.lead },
-        { key: 'speed', ...TYPE_LABELS.speed },
-        { key: 'combined', ...TYPE_LABELS.combined },
+        { key: 'lead',       ...TYPE_LABELS.lead },
+        { key: 'speed',      ...TYPE_LABELS.speed },
     ];
 
     return (
@@ -153,7 +163,7 @@ export default function ClimbingCompetitions() {
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
                         <thead>
                         <tr style={{ backgroundColor: 'var(--ifm-color-emphasis-100)' }}>
-                            {['Data', 'Nazwa', 'Miejsce', 'Kategorie', 'Rodzaj', 'Poziom', 'Link'].map((h) => (
+                            {['Data', 'Nazwa', 'Miejsce', 'Kategorie wiekowe', 'Rodzaj', 'Poziom', 'Link'].map((h) => (
                                 <th
                                     key={h}
                                     style={{
@@ -171,9 +181,10 @@ export default function ClimbingCompetitions() {
                         </thead>
                         <tbody>
                         {filtered.map((comp, i) => {
-                            const typeInfo = TYPE_LABELS[comp.type] || { label: comp.type, color: '#999' };
-                            const levelInfo = LEVEL_LABELS[comp.level] || { label: comp.level, bg: '#eee', color: '#555' };
+                            const types      = toArray(comp.type);
+                            const levelInfo  = LEVEL_LABELS[comp.level] || { label: comp.level, bg: '#eee', color: '#555' };
                             const categories = extractCategories(comp.name);
+
                             return (
                                 <tr
                                     key={i}
@@ -189,28 +200,42 @@ export default function ClimbingCompetitions() {
                                     </td>
                                     <td style={{ padding: '10px 14px' }}>{comp.name}</td>
                                     <td style={{ padding: '10px 14px' }}>{comp.location}</td>
+
+                                    {/* Kategorie wiekowe */}
                                     <td style={{ padding: '10px 14px' }}>
-                                        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                                            {categories.length > 0
-                                                ? categories.map((cat) => {
-                                                    const info = AGE_CATEGORIES[cat];
-                                                    return (
-                                                        <Badge
-                                                            key={cat}
-                                                            text={info.label}
-                                                            bg={info.bg}
-                                                            color={info.color}
-                                                            title={info.title}
-                                                        />
-                                                    );
-                                                })
-                                                : <span style={{ color: '#bbb' }}>—</span>
-                                            }
-                                        </div>
+                                        <BadgeCell
+                                            items={categories.map((cat) => {
+                                                const info = AGE_CATEGORIES[cat];
+                                                return (
+                                                    <Badge
+                                                        key={cat}
+                                                        text={info.label}
+                                                        bg={info.bg}
+                                                        color={info.color}
+                                                        title={info.title}
+                                                    />
+                                                );
+                                            })}
+                                        />
                                     </td>
+
+                                    {/* Rodzaj (może być wiele) */}
                                     <td style={{ padding: '10px 14px' }}>
-                                        <Badge text={typeInfo.label} bg={typeInfo.color + '22'} color={typeInfo.color} />
+                                        <BadgeCell
+                                            items={types.map((t) => {
+                                                const info = TYPE_LABELS[t] || { label: t, color: '#999' };
+                                                return (
+                                                    <Badge
+                                                        key={t}
+                                                        text={info.label}
+                                                        bg={info.color + '22'}
+                                                        color={info.color}
+                                                    />
+                                                );
+                                            })}
+                                        />
                                     </td>
+
                                     <td style={{ padding: '10px 14px' }}>
                                         <Badge text={levelInfo.label} bg={levelInfo.bg} color={levelInfo.color} />
                                     </td>
