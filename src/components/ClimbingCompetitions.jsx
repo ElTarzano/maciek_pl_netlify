@@ -195,10 +195,15 @@ export default function ClimbingCompetitions() {
 
     const filterGroupStyle = {
         display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        flexWrap: 'wrap',
+        flexDirection: 'column',
+        gap: '6px',
         marginBottom: '10px',
+    };
+
+    const filterButtonsStyle = {
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '8px',
     };
 
     const filterLabelStyle = {
@@ -207,7 +212,6 @@ export default function ClimbingCompetitions() {
         color: '#888',
         textTransform: 'uppercase',
         letterSpacing: '0.05em',
-        minWidth: '120px',
     };
 
     return (
@@ -216,21 +220,25 @@ export default function ClimbingCompetitions() {
             {/* Filtry – Rodzaj */}
             <div style={filterGroupStyle}>
                 <span style={filterLabelStyle}>Rodzaj</span>
-                {typeFilters.map((f) => (
-                    <FilterButton key={f.key} active={typeFilter === f.key} onClick={() => setTypeFilter(f.key)} color={f.color}>
-                        {f.label}
-                    </FilterButton>
-                ))}
+                <div style={filterButtonsStyle}>
+                    {typeFilters.map((f) => (
+                        <FilterButton key={f.key} active={typeFilter === f.key} onClick={() => setTypeFilter(f.key)} color={f.color}>
+                            {f.label}
+                        </FilterButton>
+                    ))}
+                </div>
             </div>
 
             {/* Filtry – Kategoria wiekowa */}
             <div style={{ ...filterGroupStyle, marginBottom: '20px' }}>
                 <span style={filterLabelStyle}>Kategoria</span>
-                {ageFilters.map((f) => (
-                    <FilterButton key={f.key} active={ageFilter === f.key} onClick={() => setAgeFilter(f.key)} color={f.color}>
-                        {f.label}
-                    </FilterButton>
-                ))}
+                <div style={filterButtonsStyle}>
+                    {ageFilters.map((f) => (
+                        <FilterButton key={f.key} active={ageFilter === f.key} onClick={() => setAgeFilter(f.key)} color={f.color}>
+                            {f.label}
+                        </FilterButton>
+                    ))}
+                </div>
             </div>
 
             {/* Tabela */}
@@ -261,12 +269,18 @@ export default function ClimbingCompetitions() {
                         {filtered.map((comp, i) => {
                             const types      = extractTypes(comp.name, comp.type);
                             const categories = extractCategories(comp.name);
+                            const isMistrzostwaPolski = /mistrzostwa\s+polski/i.test(comp.name || '');
                             return (
                                 <tr
                                     key={i}
-                                    style={{ borderBottom: '1px solid var(--ifm-color-emphasis-200)', transition: 'background 0.15s' }}
-                                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--ifm-color-emphasis-50)')}
-                                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                                    style={{
+                                        borderBottom: '1px solid var(--ifm-color-emphasis-200)',
+                                        transition: 'background 0.15s',
+                                        backgroundColor: isMistrzostwaPolski ? 'rgba(255, 220, 100, 0.08)' : 'transparent',
+                                        borderLeft: isMistrzostwaPolski ? '3px solid #f0c040' : '3px solid transparent',
+                                    }}
+                                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = isMistrzostwaPolski ? 'rgba(255, 220, 100, 0.15)' : 'var(--ifm-color-emphasis-50)')}
+                                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = isMistrzostwaPolski ? 'rgba(255, 220, 100, 0.08)' : 'transparent')}
                                 >
                                     <td style={{ padding: '10px 14px', whiteSpace: 'nowrap', fontWeight: '600' }}>{comp.date}</td>
                                     <td style={{ padding: '10px 14px' }}>{comp.name}</td>
