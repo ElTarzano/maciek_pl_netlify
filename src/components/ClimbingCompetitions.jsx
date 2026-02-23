@@ -292,7 +292,7 @@ export default function ClimbingCompetitions() {
                                     <td style={{ padding: '10px 14px', whiteSpace: 'nowrap', fontWeight: '600' }}>{comp.date}</td>
                                     <td style={{ padding: '10px 14px' }}>{comp.name}</td>
                                     <td style={{ padding: '10px 14px' }}>
-                                        {comp.location ? (
+                                        {comp.location && !/^do ustalenia$/i.test(comp.location.trim()) ? (
                                             <a
                                                 href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(comp.location)}`}
                                                 target="_blank"
@@ -301,7 +301,7 @@ export default function ClimbingCompetitions() {
                                             >
                                                 {comp.location}
                                             </a>
-                                        ) : '—'}
+                                        ) : (comp.location || '—')}
                                     </td>
 
                                     <td style={{ padding: '10px 14px' }}>
@@ -324,7 +324,7 @@ export default function ClimbingCompetitions() {
 
                                     <td style={{ padding: '10px 14px' }}>
                                         {comp.url ? (
-                                            <a href={comp.url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--ifm-color-primary)' }}>
+                                            <a href={comp.url} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px' }}>
                                                 Więcej
                                             </a>
                                         ) : (
