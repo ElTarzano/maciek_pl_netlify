@@ -276,7 +276,7 @@ export default function ClimbingCompetitions() {
                                     style={{
                                         borderBottom: '1px solid var(--ifm-color-emphasis-200)',
                                         transition: 'background 0.15s',
-                                        backgroundColor: isMistrzostwaPolski ? 'rgba(0, 0, 0, 0.035)' : 'transparent',
+                                        backgroundColor: isMistrzostwaPolski ? 'rgba(0, 0, 0, 0.15)' : 'transparent',
                                         borderLeft: isMistrzostwaPolski ? '3px solid #f0c040' : '3px solid transparent',
                                     }}
                                     onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = isMistrzostwaPolski ? 'rgba(0, 0, 0, 0.07)' : 'var(--ifm-color-emphasis-50)')}
