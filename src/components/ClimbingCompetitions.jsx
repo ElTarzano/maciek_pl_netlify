@@ -14,8 +14,35 @@ const LEVEL_LABELS = {
     międzynarodowy: { label: 'Międzynarodowy', bg: '#fef9c3', color: '#854d0e' },
 };
 
-const Badge = ({ text, bg, color }) => (
+const AGE_CATEGORIES = {
+    DM:  { label: 'DM',  title: 'Dziecko młodsze (≥2016)',    bg: '#fce4ec', color: '#c2185b' },
+    D:   { label: 'D',   title: 'Dziecko (2014–2015)',         bg: '#f3e5f5', color: '#7b1fa2' },
+    'Mł': { label: 'Mł', title: 'Młodzik (2012–2013)',         bg: '#e8eaf6', color: '#303f9f' },
+    JM:  { label: 'JM',  title: 'Junior młodszy (2010–2011)',  bg: '#e3f2fd', color: '#1565c0' },
+    J:   { label: 'J',   title: 'Junior (2008–2009)',          bg: '#e0f7fa', color: '#00695c' },
+    M:   { label: 'M',   title: 'Młodzieżowiec (2006–2007)',   bg: '#e8f5e9', color: '#2e7d32' },
+    S:   { label: 'S',   title: 'Senior (≤2005)',              bg: '#fff8e1', color: '#e65100' },
+};
+
+// Extract age category abbreviations from a competition name string
+// Expects them in parentheses, e.g. "(DM, D, Mł)" or "(S, M)"
+function extractCategories(name) {
+    const match = name.match(/\(([^)]+)\)/g);
+    if (!match) return [];
+    const found = [];
+    match.forEach((group) => {
+        const inner = group.slice(1, -1);
+        inner.split(/[,\s]+/).forEach((token) => {
+            const t = token.trim();
+            if (AGE_CATEGORIES[t]) found.push(t);
+        });
+    });
+    return [...new Set(found)];
+}
+
+const Badge = ({ text, bg, color, title }) => (
     <span
+        title={title}
         style={{
             display: 'inline-block',
             padding: '2px 8px',
@@ -25,10 +52,11 @@ const Badge = ({ text, bg, color }) => (
             backgroundColor: bg,
             color: color,
             whiteSpace: 'nowrap',
+            cursor: title ? 'help' : 'default',
         }}
     >
-    {text}
-  </span>
+        {text}
+    </span>
 );
 
 const FilterButton = ({ active, onClick, children, color }) => (
@@ -37,8 +65,8 @@ const FilterButton = ({ active, onClick, children, color }) => (
         style={{
             padding: '6px 14px',
             borderRadius: '20px',
-            border: `2px solid ${active ? color : '#ddd'}`,
-            backgroundColor: active ? color : 'transparent',
+            border: 'none',
+            backgroundColor: active ? color : '#e0e0e0',
             color: active ? '#fff' : '#555',
             cursor: 'pointer',
             fontSize: '13px',
@@ -125,7 +153,7 @@ export default function ClimbingCompetitions() {
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
                         <thead>
                         <tr style={{ backgroundColor: 'var(--ifm-color-emphasis-100)' }}>
-                            {['Data', 'Nazwa', 'Miejsce', 'Rodzaj', 'Poziom', 'Link'].map((h) => (
+                            {['Data', 'Nazwa', 'Miejsce', 'Kategorie', 'Rodzaj', 'Poziom', 'Link'].map((h) => (
                                 <th
                                     key={h}
                                     style={{
@@ -145,6 +173,7 @@ export default function ClimbingCompetitions() {
                         {filtered.map((comp, i) => {
                             const typeInfo = TYPE_LABELS[comp.type] || { label: comp.type, color: '#999' };
                             const levelInfo = LEVEL_LABELS[comp.level] || { label: comp.level, bg: '#eee', color: '#555' };
+                            const categories = extractCategories(comp.name);
                             return (
                                 <tr
                                     key={i}
@@ -160,6 +189,25 @@ export default function ClimbingCompetitions() {
                                     </td>
                                     <td style={{ padding: '10px 14px' }}>{comp.name}</td>
                                     <td style={{ padding: '10px 14px' }}>{comp.location}</td>
+                                    <td style={{ padding: '10px 14px' }}>
+                                        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                                            {categories.length > 0
+                                                ? categories.map((cat) => {
+                                                    const info = AGE_CATEGORIES[cat];
+                                                    return (
+                                                        <Badge
+                                                            key={cat}
+                                                            text={info.label}
+                                                            bg={info.bg}
+                                                            color={info.color}
+                                                            title={info.title}
+                                                        />
+                                                    );
+                                                })
+                                                : <span style={{ color: '#bbb' }}>—</span>
+                                            }
+                                        </div>
+                                    </td>
                                     <td style={{ padding: '10px 14px' }}>
                                         <Badge text={typeInfo.label} bg={typeInfo.color + '22'} color={typeInfo.color} />
                                     </td>
