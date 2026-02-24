@@ -106,6 +106,10 @@ const config = {
                   to: '/trening/timer',
                 },
                 {
+                  label: 'timer2',
+                  to: '/trening/timer2',
+                },
+                {
                   label: 'grafik',
                   to: '/trening/grafik',
                 },
