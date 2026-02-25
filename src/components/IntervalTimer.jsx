@@ -46,6 +46,13 @@ const SOUNDS = {
     },
 };
 
+// ─── Helper: create AudioContext with webkit fallback ─────────────────────────
+function createAudioContext() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const AudioCtx = window.AudioContext || (window).webkitAudioContext;
+    return new AudioCtx();
+}
+
 const defaultExercises = [
     { id: 1, name: "Burpees",           sets: 4, workTime: 40, restTime: 20, load: 0  },
     { id: 2, name: "Kettlebell Swings", sets: 3, workTime: 30, restTime: 30, load: 24 },
@@ -67,7 +74,12 @@ function formatTime(rawSeconds) {
     };
 }
 
-export default function IntervalTimer() {
+// ─── Named export so the module is never "unused" from bundler perspective ────
+export function IntervalTimerWidget() {
+    return <IntervalTimer />;
+}
+
+function IntervalTimer() {
 
     const [exercises,     setExercises]     = useState(defaultExercises);
     const [currentExIdx,  setCurrentExIdx]  = useState(0);
@@ -91,7 +103,6 @@ export default function IntervalTimer() {
     const containerRef      = useRef(null);
     const touchStartRef     = useRef(null);
 
-    // Refs do odczytu aktualnych wartości wewnątrz rAF/tickRef bez closure stale
     const currentExIdxRef  = useRef(currentExIdx);
     const currentSetRef    = useRef(currentSet);
     const phaseRef         = useRef(phase);
@@ -120,20 +131,25 @@ export default function IntervalTimer() {
     const playSound = useCallback(() => {
         if (!soundEnabledRef.current) return;
         try {
-            if (!audioCtxRef.current)
-                audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+            if (!audioCtxRef.current) audioCtxRef.current = createAudioContext();
             SOUNDS[selectedSoundRef.current]?.(audioCtxRef.current);
         } catch (_) {}
     }, []);
 
-    const acquireWakeLock = useCallback(async () => {
+    // ─── Wake Lock ────────────────────────────────────────────────────────────
+    const acquireWakeLock = useCallback(() => {
         if ("wakeLock" in navigator) {
-            try { wakeLockRef.current = await navigator.wakeLock.request("screen"); } catch (_) {}
+            navigator.wakeLock.request("screen")
+                .then((lock) => { wakeLockRef.current = lock; })
+                .catch(() => {});
         }
     }, []);
 
     const releaseWakeLock = useCallback(() => {
-        if (wakeLockRef.current) { wakeLockRef.current.release(); wakeLockRef.current = null; }
+        if (wakeLockRef.current) {
+            wakeLockRef.current.release().catch(() => {});
+            wakeLockRef.current = null;
+        }
     }, []);
 
     useEffect(() => {
@@ -179,14 +195,14 @@ export default function IntervalTimer() {
             switchIdx(idx + 1); switchSet(1); switchPhase("work"); startTickFn(nex.workTime);
         };
         if (ph === "work") {
-            if (ex.restTime > 0)       { switchPhase("rest"); startTickFn(ex.restTime); }
-            else if (set < ex.sets)    { switchSet(set + 1); switchPhase("work"); startTickFn(ex.workTime); }
+            if (ex.restTime > 0)           { switchPhase("rest"); startTickFn(ex.restTime); }
+            else if (set < ex.sets)        { switchSet(set + 1); switchPhase("work"); startTickFn(ex.workTime); }
             else if (idx + 1 < exs.length) { nextEx(); }
-            else                       { finish(); }
+            else                           { finish(); }
         } else {
-            if (set < ex.sets)         { switchSet(set + 1); switchPhase("work"); startTickFn(ex.workTime); }
+            if (set < ex.sets)             { switchSet(set + 1); switchPhase("work"); startTickFn(ex.workTime); }
             else if (idx + 1 < exs.length) { nextEx(); }
-            else                       { finish(); }
+            else                           { finish(); }
         }
     };
 
@@ -241,7 +257,6 @@ export default function IntervalTimer() {
         setTimeLeftRaw(0);
     }, []);
 
-    // Wspólna logika nawigacji dla goNext/goPrev
     const navigateTo = useCallback((newIdx, newSet) => {
         cancelAnimationFrame(animFrameRef.current);
         startTimestampRef.current = null;
@@ -268,7 +283,7 @@ export default function IntervalTimer() {
         const exs = exercisesRef.current;
         const idx = currentExIdxRef.current;
         const set = currentSetRef.current;
-        if (set > 1)   navigateTo(idx, set - 1);
+        if (set > 1)      navigateTo(idx, set - 1);
         else if (idx > 0) navigateTo(idx - 1, exs[idx - 1].sets);
     }, [navigateTo]);
 
@@ -277,17 +292,19 @@ export default function IntervalTimer() {
         setCurrentExIdx(idx); setCurrentSet(1);
     }, [stopAndReset]);
 
-    const toggleFullscreen = useCallback(async () => {
+    // ─── Fullscreen ───────────────────────────────────────────────────────────
+    const toggleFullscreen = useCallback(() => {
         if (!document.fullscreenElement) {
             const theme = document.documentElement.getAttribute("data-theme");
             setBgColor(theme === "dark" ? "#1b1b1d" : "#ffffff");
-            await containerRef.current?.requestFullscreen?.();
+            containerRef.current?.requestFullscreen?.().catch(() => {});
             setIsFullscreen(true);
         } else {
-            await document.exitFullscreen?.();
+            document.exitFullscreen?.().catch(() => {});
             setIsFullscreen(false);
         }
     }, []);
+
     useEffect(() => {
         const fn = () => setIsFullscreen(!!document.fullscreenElement);
         document.addEventListener("fullscreenchange", fn);
@@ -305,6 +322,7 @@ export default function IntervalTimer() {
                 case "f": case "F": toggleFullscreen(); break;
                 case "m": case "M": setSoundEnabled((s) => !s); break;
                 case "Escape":      setShowSettings(false); break;
+                default: break;
             }
         };
         window.addEventListener("keydown", fn);
@@ -338,7 +356,6 @@ export default function IntervalTimer() {
     };
     const updateExercise = (id, field, value) =>
         setExercises((p) => p.map((e) => (e.id === id ? { ...e, [field]: value } : e)));
-
 
     const displayRaw    = phase === "idle" ? (currentEx?.workTime ?? 0) : phase === "done" ? 0 : timeLeftRaw;
     const { whole, ms } = formatTime(displayRaw);
@@ -377,7 +394,6 @@ export default function IntervalTimer() {
     }
     .it-root * { box-sizing: border-box; }
 
-    /* ── Normal mode layout ── */
     .it-main {
       display: flex; flex-direction: column;
       align-items: center; min-height: 100vh;
@@ -385,13 +401,11 @@ export default function IntervalTimer() {
       background: var(--ifm-background-color);
     }
 
-    /* ── Topbar ── */
     .it-topbar {
       width: 100%; max-width: 560px;
       display: flex; justify-content: space-between; align-items: center; gap: 8px;
     }
 
-    /* ── Icon buttons ── */
     .it-icon-btn {
       width: 40px; height: 40px; border-radius: 10px;
       border: 1px solid var(--it-border); background: var(--it-surface);
@@ -401,7 +415,6 @@ export default function IntervalTimer() {
     .it-icon-btn:hover { color: var(--it-text); border-color: var(--it-accent); }
     .it-icon-btn.active { background: var(--it-accent); color: #fff; border-color: var(--it-accent); }
 
-    /* ── Exercise info ── */
     .it-ex-info { width: 100%; max-width: 560px; text-align: center; }
     .it-ex-name { font-size: clamp(24px, 7vw, 44px); font-weight: 700; letter-spacing: 0.5px; line-height: 1.1; }
     .it-ex-meta {
@@ -414,7 +427,6 @@ export default function IntervalTimer() {
       border-radius: 8px; padding: 2px 10px; font-size: 12px;
     }
 
-    /* ── Timer ── */
     .it-timer-wrap {
       display: flex; flex-direction: column; align-items: center;
       gap: 10px; width: 100%; max-width: 560px;
@@ -441,7 +453,6 @@ export default function IntervalTimer() {
       margin-top: 6px; text-align: center;
     }
 
-    /* ── Set dots ── */
     .it-sets { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
     .it-set-dot {
       width: 28px; height: 8px; border-radius: 4px;
@@ -451,7 +462,6 @@ export default function IntervalTimer() {
     .it-set-dot.done   { background: var(--it-work); border-color: var(--it-work); }
     .it-set-dot.active { background: var(--it-accent); border-color: var(--it-accent); box-shadow: 0 0 8px color-mix(in srgb, var(--it-accent) 50%, transparent); }
 
-    /* ── Controls ── */
     .it-controls {
       width: 100%; max-width: 560px;
       display: flex; align-items: center; gap: 10px; justify-content: center;
@@ -496,12 +506,10 @@ export default function IntervalTimer() {
     }
     .it-btn-reset:active { transform: translateY(1px); }
 
-    /* ── Done ── */
     .it-done { text-align: center; padding: 24px 0; }
     .it-done-emoji { font-size: 60px; }
     .it-done-text { font-size: 40px; font-weight: 800; letter-spacing: 1px; color: var(--it-primary); margin: 8px 0; }
 
-    /* ── Inline exercise list ── */
     .it-ex-inline-list { width: 100%; max-width: 560px; display: flex; flex-direction: column; gap: 6px; }
     .it-ex-inline-title {
       font-size: 11px; font-weight: 700; letter-spacing: 2px;
@@ -531,7 +539,6 @@ export default function IntervalTimer() {
     .it-ex-inline-dot.done   { background: var(--it-work); border-color: var(--it-work); }
     .it-ex-inline-dot.active { background: var(--it-accent); border-color: var(--it-accent); }
 
-    /* ── Settings overlay ── */
     .it-settings-overlay {
       position: fixed; inset: 0; z-index: 60;
       background: rgba(0,0,0,.5); backdrop-filter: blur(6px);
@@ -593,33 +600,22 @@ export default function IntervalTimer() {
     .it-shortcut  { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--it-muted); }
     .it-key { background: var(--it-surf2); border: 1px solid var(--it-border); border-radius: 5px; padding: 2px 7px; font-size: 11px; color: var(--it-text); white-space: nowrap; }
 
-    /* ═══════════════════════════════════════════════════════
-       FULLSCREEN — klasa .is-fs zamiast pseudoselektora :fullscreen
-       ═══════════════════════════════════════════════════════ */
-
     .it-root.is-fs {
       overflow: auto;
       -webkit-overflow-scrolling: touch;
     }
-
     .it-root.is-fs .it-main {
       min-height: 100vh; padding: 0;
       background: var(--ifm-background-color, #ffffff);
       display: flex; flex-direction: column;
     }
-
-    /* Topbar w fullscreen: unieruchomiony w górnych rogach zamiast bycia w flow */
     .it-root.is-fs .it-topbar {
       position: absolute; top: 16px; left: 0; right: 0;
-      max-width: unset; z-index: 20;
-      padding: 0 24px;
+      max-width: unset; z-index: 20; padding: 0 24px;
     }
     .it-root.is-fs .it-topbar .it-icon-btn {
-      width: 52px; height: 52px; border-radius: 14px; font-size: 22px;
-      flex-shrink: 0;
+      width: 52px; height: 52px; border-radius: 14px; font-size: 22px; flex-shrink: 0;
     }
-
-    /* center-block — flex: 1, centruje timer pionowo w dostępnej przestrzeni */
     .it-center-block { display: contents; }
     .it-root.is-fs .it-center-block {
       display: flex; flex-direction: column;
@@ -627,8 +623,6 @@ export default function IntervalTimer() {
       gap: 20px; flex: 1; width: 100%;
       padding: 80px 32px 16px;
     }
-
-    /* list-area — przyklejona do dołu, nie rośnie */
     .it-root.is-fs .it-ex-inline-list { max-width: 780px; }
     .it-root.is-fs .it-ex-info { max-width: 780px; }
     .it-root.is-fs .it-ex-name { font-size: clamp(36px, 5vw, 64px); }
@@ -669,10 +663,8 @@ export default function IntervalTimer() {
 
             <div className="it-main" style={isFullscreen && bgColor ? { background: bgColor } : undefined}>
 
-                {/* Topbar — w normalnym trybie: flow; w fullscreen: position:absolute w rogach */}
                 <div className="it-topbar">
-                    <button className="it-icon-btn"
-                            onClick={toggleFullscreen} title="Pełny ekran (F)">
+                    <button className="it-icon-btn" onClick={toggleFullscreen} title="Pełny ekran (F)">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">{svgFS}</svg>
                     </button>
                     <div style={{ flex: 1 }} />
@@ -683,7 +675,6 @@ export default function IntervalTimer() {
 
                 <div className="it-center-block">
 
-                    {/* Exercise info */}
                     <div className="it-ex-info">
                         {currentEx && (
                             <>
@@ -696,7 +687,6 @@ export default function IntervalTimer() {
                         )}
                     </div>
 
-                    {/* Timer */}
                     <div className="it-timer-wrap">
                         {phase === "done" ? (
                             <div className="it-done">
@@ -716,7 +706,6 @@ export default function IntervalTimer() {
                         <div className="it-phase-label">{phaseLabel}</div>
                     </div>
 
-                    {/* Set dots */}
                     {currentEx && (
                         <div className="it-sets">
                             {Array.from({ length: currentEx.sets }).map((_, i) => (
@@ -725,14 +714,12 @@ export default function IntervalTimer() {
                         </div>
                     )}
 
-                    {/* Counter */}
                     <div style={{ fontSize: 12, color: "var(--it-text)", letterSpacing: 1 }}>
                         SERIA {currentSet}&nbsp;/&nbsp;{currentEx?.sets}
                         &nbsp;·&nbsp;
                         ĆWICZENIE {currentExIdx + 1}&nbsp;/&nbsp;{exercises.length}
                     </div>
 
-                    {/* Controls */}
                     <div className="it-controls">
                         <button className="it-nav-btn" onClick={goPrev}
                                 disabled={currentExIdx === 0 && currentSet === 1} title="Poprzednie (←)">◀</button>
@@ -754,7 +741,6 @@ export default function IntervalTimer() {
                                 title="Następne (→)">▶</button>
                     </div>
 
-                    {/* Lista ćwiczeń */}
                     <div className="it-ex-inline-list">
                         <div className="it-ex-inline-title">Ćwiczenia</div>
                         {exercises.map((ex, idx) => {
@@ -778,11 +764,9 @@ export default function IntervalTimer() {
                         })}
                     </div>
 
-                </div>{/* /it-center-block */}
+                </div>
+            </div>
 
-            </div>{/* /it-main */}
-
-            {/* Settings overlay */}
             {showSettings && (
                 <div className="it-settings-overlay" onClick={() => setShowSettings(false)}>
                     <div className="it-settings-panel" onClick={(e) => e.stopPropagation()}>
@@ -814,7 +798,7 @@ export default function IntervalTimer() {
                                                                 onClick={() => {
                                                                     setSelectedSound(s);
                                                                     if (!audioCtxRef.current)
-                                                                        audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+                                                                        audioCtxRef.current = createAudioContext();
                                                                     SOUNDS[s](audioCtxRef.current);
                                                                 }}>
                                                             {s.charAt(0).toUpperCase() + s.slice(1)}
@@ -914,3 +898,5 @@ export default function IntervalTimer() {
         </div>
     );
 }
+
+export default IntervalTimer;
