@@ -69,6 +69,10 @@ const config = {
         highlightSearchTermsOnTargetPage: true,
         explicitSearchResultPath: true,
         removeDefaultStemmer: true,
+        askAi: {
+          project: 'maciek-orlowski',
+          apiUrl: 'https://maciek-ask-ai-server.vercel.app/',
+        },
       }),
     ],
   ],
