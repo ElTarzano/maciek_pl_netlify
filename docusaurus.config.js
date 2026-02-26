@@ -27,6 +27,19 @@ const config = {
     },
   },
 
+  plugins: [
+    [
+      '@docusaurus/plugin-ideal-image',
+      {
+        quality: 70,
+        max: 1030,
+        min: 640,
+        steps: 2,
+        disableInDev: false,
+      },
+    ],
+  ],
+
   presets: [
     [
       'classic',
@@ -34,8 +47,6 @@ const config = {
       ({
         docs: {
           sidebarPath: './sidebars.js',
-          // editUrl:
-          //    'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
         },
         blog: {
           showReadingTime: true,
@@ -43,8 +54,6 @@ const config = {
             type: ['rss', 'atom'],
             xslt: true,
           },
-          // editUrl:
-          //    'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
           onInlineTags: 'warn',
           onInlineAuthors: 'warn',
           onUntruncatedBlogPosts: 'warn',
@@ -95,7 +104,7 @@ const config = {
           respectPrefersColorScheme: false,
         },
         navbar: {
-          title: 'Maciek Orłowski',
+          title: '',
           logo: {
             alt: 'Maciek Orłowski Logo',
             src: 'img/logo.svg',

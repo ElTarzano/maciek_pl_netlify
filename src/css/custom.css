@@ -141,3 +141,24 @@ article[class*="docItemCol"]::before {
 .searchHintContainer_Pkmr {
   display: none !important;
 }
+
+
+/* MENU górne*/
+
+/* Ukrycie tytułu wszędzie */
+.navbar__title {
+  display: none !important;
+}
+
+/* Logo na środku w menu mobilnym */
+@media (max-width: 996px) {
+  .navbar-sidebar__brand {
+    justify-content: center !important;
+  }
+
+  /* Przycisk zmiany motywu po prawej, obok przycisku zamknięcia */
+  .navbar-sidebar__brand .toggle_vylO {
+    position: absolute !important;
+    right: 60px !important;
+  }
+}
