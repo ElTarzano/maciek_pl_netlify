@@ -129,6 +129,8 @@ const config = {
           logo: {
             alt: 'Maciek Orłowski Logo',
             src: 'img/logo.svg',
+            width: 32,
+            height: 18,
           },
           hideOnScroll: true,
           items: [
