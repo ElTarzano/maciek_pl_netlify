@@ -189,3 +189,4 @@ article[class*="docItemCol"]::before {
     background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/img/hero-image-mobile.webp');
   }
 }
+

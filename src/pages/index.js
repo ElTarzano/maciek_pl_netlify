@@ -19,11 +19,12 @@ function HomepageHeader() {
                 <p className="hero__subtitle">{siteConfig.tagline}</p>
                 <div className={styles.buttons}>
                     <Link
-                        className="button button--secondary button--lg"
+                        className={clsx('button button--lg', styles.ctaButton)}
                         to="/docs/intro">
                         Zrób ze mną formę 🏋️
                     </Link>
                 </div>
+                <div className={styles.scrollIndicator}>▼</div>
             </div>
         </header>
     );

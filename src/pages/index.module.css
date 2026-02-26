@@ -17,3 +17,37 @@
   align-items: center;
   justify-content: center;
 }
+
+.ctaButton {
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 0.85rem 2.2rem;
+  border-radius: 50px;
+  border: 2px solid #fff;
+  background: transparent;
+  color: #fff;
+  letter-spacing: 0.03em;
+  transition: background 0.25s ease, color 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.ctaButton:hover {
+  background: var(--ifm-color-primary);
+  border-color: var(--ifm-color-primary);
+  color: #fff;
+  transform: translateY(-3px) scale(1.04);
+}
+
+.scrollIndicator {
+  position: absolute;
+  bottom: 0.3rem;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: bounce 1.5s infinite;
+  font-size: 1.5rem;
+  opacity: 0.6;
+}
+@keyframes bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%       { transform: translateX(-50%) translateY(8px); }
+}
