@@ -173,7 +173,7 @@ article[class*="docItemCol"]::before {
     transform: translateX(-50%);
   }
 .navbar__logo {
-  margin-right: 0;
+  margin-right: 0px;
 }
 
 /* Hero image */
