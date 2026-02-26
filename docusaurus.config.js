@@ -56,8 +56,7 @@ const config = {
     ],
   ],
 
-  // ✨ Dodaj sekcję plugins
-  plugins: [
+  themes: [
     [
       require.resolve('@easyops-cn/docusaurus-search-local'),
       /** @type {import('@easyops-cn/docusaurus-search-local').PluginOptions} */
@@ -69,6 +68,7 @@ const config = {
         indexPages: true,
         highlightSearchTermsOnTargetPage: true,
         explicitSearchResultPath: true,
+        removeDefaultStemmer: true,
       }),
     ],
   ],
@@ -86,7 +86,7 @@ const config = {
             alt: 'Maciek Orłowski Logo',
             src: 'img/logo.svg',
           },
-          hideOnScroll: true, // ✅ WŁĄCZONE chowanie paska nawigacji podczas scrollu
+          hideOnScroll: true,
           items: [
             {
               type: 'dropdown',
@@ -177,4 +177,3 @@ const config = {
 };
 
 export default config;
-``

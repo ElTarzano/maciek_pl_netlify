@@ -1,0 +1,42 @@
+{
+  "title": {
+    "message": "Maciek Orłowski",
+    "description": "The title in the navbar"
+  },
+  "logo.alt": {
+    "message": "Maciek Orłowski Logo",
+    "description": "The alt text of navbar logo"
+  },
+  "item.label.Trening": {
+    "message": "Trening",
+    "description": "Navbar item with label Trening"
+  },
+  "item.label.Dokumentacja": {
+    "message": "Dokumentacja",
+    "description": "Navbar item with label Dokumentacja"
+  },
+  "item.label.Blog": {
+    "message": "Blog",
+    "description": "Navbar item with label Blog"
+  },
+  "item.label.Indywidualny": {
+    "message": "Indywidualny",
+    "description": "Navbar item with label Indywidualny"
+  },
+  "item.label.Kalkulator 1rm": {
+    "message": "Kalkulator 1rm",
+    "description": "Navbar item with label Kalkulator 1rm"
+  },
+  "item.label.timer": {
+    "message": "timer",
+    "description": "Navbar item with label timer"
+  },
+  "item.label.timer2": {
+    "message": "timer2",
+    "description": "Navbar item with label timer2"
+  },
+  "item.label.grafik": {
+    "message": "grafik",
+    "description": "Navbar item with label grafik"
+  }
+}
