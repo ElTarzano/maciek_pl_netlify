@@ -17,6 +17,27 @@ const config = {
   projectName: 'maciek_pl',
   onBrokenLinks: 'throw',
 
+  headTags: [
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'preload',
+        href: '/img/hero-image-mobile.webp',
+        as: 'image',
+        media: '(max-width: 996px)',
+      },
+    },
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'preload',
+        href: '/img/hero-image.webp',
+        as: 'image',
+        media: '(min-width: 997px)',
+      },
+    },
+  ],
+
   i18n: {
     defaultLocale: 'pl',
     locales: ['pl'],
