@@ -4,20 +4,31 @@ title: Grafik zajęć
 
 import Schedule from '@site/src/components/Schedule';
 
-<div style={{
-    backgroundImage: 'url(/img/hero-image.png)',
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    height: '400px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 'calc(-50vw + 50%)',
-    marginRight: 'calc(-50vw + 50%)',
-    marginBottom: '3rem',
-    width: '100vw',
-    overflow: 'visible',
-}}>
+<style>{`
+  .hero-image {
+    background-image: url('/img/hero-image.pwebp');
+    background-size: cover;
+    background-position: 65% 27%;
+    height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -35px;
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    margin-bottom: 3rem;
+    width: 100vw;
+    overflow: visible;
+  }
+
+  @media (max-width: 996px) {
+    .hero-image {
+      background-image: url('/img/hero-image-mobile.webp');
+    }
+  }
+`}</style>
+
+<div className="hero-image">
     <h1 style={{color: 'white', fontSize: '3rem', textShadow: '2px 2px 4px rgba(0,0,0,0.7)'}}>
         Trening indywidualny
     </h1>

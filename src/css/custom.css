@@ -162,3 +162,17 @@ article[class*="docItemCol"]::before {
     right: 60px !important;
   }
 }
+
+/* Hero image */
+.heroBanner {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/img/hero-image.webp');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: 65% 27%;
+}
+
+@media screen and (max-width: 996px) {
+  .heroBanner {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/img/hero-image-mobile.webp');
+  }
+}
