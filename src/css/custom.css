@@ -163,8 +163,19 @@ article[class*="docItemCol"]::before {
   }
 }
 
+  .navbar__inner {
+    justify-content: center;
+  }
+
+.navbar__inner .navbar__brand {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+
 /* Hero image */
-.heroBanner {
+.heroBanner-global {
   background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/img/hero-image.webp');
   background-size: cover;
   background-repeat: no-repeat;
@@ -172,7 +183,7 @@ article[class*="docItemCol"]::before {
 }
 
 @media screen and (max-width: 996px) {
-  .heroBanner {
+  .heroBanner-global {
     background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/img/hero-image-mobile.webp');
   }
 }
