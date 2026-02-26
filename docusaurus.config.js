@@ -71,7 +71,7 @@ const config = {
         removeDefaultStemmer: true,
         askAi: {
           project: 'maciek-orlowski',
-          apiUrl: 'https://maciek-ask-ai-server.vercel.app/',
+          apiUrl: 'https://maciek-ask-ai-server.vercel.app/api/stream',
         },
       }),
     ],
