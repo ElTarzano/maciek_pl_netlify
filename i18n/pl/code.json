@@ -360,5 +360,8 @@
   "theme.tags.tagsPageTitle": {
     "message": "Tagi",
     "description": "The title of the tag list page"
+  },
+  "theme.SearchBar.indexInProgress": {
+    "message": "Indeks wyszukiwania jest dostępny tylko po uruchomieniu docusaurus build!"
   }
 }
