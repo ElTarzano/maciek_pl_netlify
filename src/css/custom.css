@@ -172,7 +172,9 @@ article[class*="docItemCol"]::before {
     left: 50%;
     transform: translateX(-50%);
   }
-
+.navbar__logo {
+  margin-right: 0;
+}
 
 /* Hero image */
 .heroBanner-global {
