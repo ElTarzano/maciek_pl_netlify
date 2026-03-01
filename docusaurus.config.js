@@ -101,19 +101,6 @@ const config = {
         explicitSearchResultPath: true,
         removeDefaultStemmer: true,
         askAi: false,
-          /* askAi: {
-          project: 'maciek-orlowski',
-          apiUrl: 'https://maciek-ask-ai-server.vercel.app/api/stream',
-          texts: {
-            triggerButtonText: 'Zapytaj AI',
-            triggerButtonAriaLabel: 'Otwórz czat AI',
-            drawerTitle: 'Asystent AI',
-            drawerCloseAriaLabel: 'Zamknij czat',
-            drawerNewSessionAriaLabel: 'Nowa rozmowa',
-            welcomeMessage: 'Hej! W czym mogę Ci pomóc? 🧗',
-            inputPlaceholder: 'Zadaj pytanie...',
-            exampleQuestionsTitle: 'Przykładowe pytania:',
-          }, */
         },
       }),
     ],
