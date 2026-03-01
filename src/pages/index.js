@@ -35,7 +35,7 @@ function HomepageHeader() {
                 )}
                 style={{ '--placeholder-src': `url(${HERO_PLACEHOLDER})` }}
             />
-            <div className="container">
+            <div className="container" style={{ position: 'relative', zIndex: 1 }}>
                 <Heading as="h1" className="hero__title">
                     {siteConfig.title}
                 </Heading>
