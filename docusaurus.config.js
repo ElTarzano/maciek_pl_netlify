@@ -101,7 +101,6 @@ const config = {
         explicitSearchResultPath: true,
         removeDefaultStemmer: true,
         askAi: false,
-        },
       }),
     ],
   ],
