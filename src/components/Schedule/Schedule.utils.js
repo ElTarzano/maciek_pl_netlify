@@ -47,34 +47,48 @@ export function useSlide() {
     return [offset, transitioning, slide];
 }
 
-// ─── Naprawiony hook: używa visualViewport zamiast window.innerHeight ─────────
-// Zapobiega skakaniu grafiku gdy pasek przeglądarki pojawia się/znika na mobile
+// ─── Hook z zablokowaną wysokością po pierwszym renderze ──────────────────────
+// Pasek przeglądarki (Chrome Android, iOS Safari) zmienia window.innerHeight
+// i visualViewport.height przy scroll — blokujemy wysokość po montowaniu
+// i przeliczamy TYLKO przy obrocie ekranu.
 export function useMobileSlotHeight(navRef, dotsRef) {
     const [slotH, setSlotH] = useState(40);
+    // Zapamiętujemy orientację żeby odróżnić obrót od pojawienia się paska
+    const orientationRef = useRef(null);
 
     useEffect(() => {
         const calc = () => {
             const navH  = navRef.current  ? navRef.current.offsetHeight  : 56;
             const dotsH = dotsRef.current ? dotsRef.current.offsetHeight : 22;
             const reserved = 52 + 42 + 42 + navH + dotsH + 64;
-
-            // visualViewport.height jest stabilne — nie zmienia się gdy przeglądarka
-            // chowa/pokazuje swój pasek nawigacyjny (iOS Safari, Chrome Android)
-            const viewH = window.visualViewport?.height ?? window.innerHeight;
+            // Używamy screen.height — stała, nie zmienia się przy pasku przeglądarki
+            const viewH = window.screen?.height ?? window.innerHeight;
             const h = Math.max(22, Math.floor((viewH - reserved) / HOURS.length));
             setSlotH(h);
         };
 
+        // Tylko przy obrocie ekranu
+        const onOrientationChange = () => {
+            const newOrientation = window.screen?.orientation?.angle ?? window.orientation ?? 0;
+            if (newOrientation !== orientationRef.current) {
+                orientationRef.current = newOrientation;
+                // Małe opóźnienie — przeglądarka potrzebuje chwili po obrocie
+                setTimeout(calc, 300);
+            }
+        };
+
+        // Zapisz startową orientację
+        orientationRef.current = window.screen?.orientation?.angle ?? window.orientation ?? 0;
+
+        // Oblicz raz przy montowaniu
         calc();
 
-        // Reaguj na prawdziwy resize (np. obrót ekranu, otwarcie klawiatury)
-        window.visualViewport?.addEventListener('resize', calc);
-        // Fallback dla przeglądarek bez visualViewport + obsługa obrotu
-        window.addEventListener('orientationchange', calc);
+        window.addEventListener('orientationchange', onOrientationChange);
+        screen.orientation?.addEventListener('change', onOrientationChange);
 
         return () => {
-            window.visualViewport?.removeEventListener('resize', calc);
-            window.removeEventListener('orientationchange', calc);
+            window.removeEventListener('orientationchange', onOrientationChange);
+            screen.orientation?.removeEventListener('change', onOrientationChange);
         };
     }, [navRef, dotsRef]);
 
