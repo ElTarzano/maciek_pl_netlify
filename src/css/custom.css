@@ -172,12 +172,13 @@ article[class*="docItemCol"]::before {
   margin-right: 0px;
 }
 
-/* Hero image */
+/* Hero image na stronie głównej*/
 .heroBanner-global {
   background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/img/hero-image.webp');
   background-size: cover;
   background-repeat: no-repeat;
   background-position: 65% 27%;
+  background-color: var(--ifm-card-background-color, var(--ifm-background-surface-color));
 }
 
 @media screen and (max-width: 996px) {
@@ -185,6 +186,8 @@ article[class*="docItemCol"]::before {
     background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/img/hero-image-mobile.webp');
   }
 }
+
+
 
 /* BLOG */
 
