@@ -100,7 +100,6 @@ const config = {
         highlightSearchTermsOnTargetPage: true,
         explicitSearchResultPath: true,
         removeDefaultStemmer: true,
-        askAi: false,
       }),
     ],
   ],
