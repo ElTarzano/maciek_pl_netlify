@@ -47,7 +47,6 @@ function HomepageHeader() {
                         Zrób ze mną formę 🏋️
                     </Link>
                 </div>
-                <div className={styles.scrollIndicator}>▼</div>
             </div>
         </header>
     );
