@@ -1,154 +1,148 @@
-.testimonialsSection {
-  padding: 4rem 0;
-  background-color: transparent;
+.section {
+    padding: 80px 0;
+    overflow: hidden;
+    background: var(--ifm-background-color);
 }
 
-.container {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 0 2rem;
+.header {
+    text-align: center;
+    margin-bottom: 56px;
+    padding: 0 24px;
 }
 
 .title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  text-align: center;
-  margin-bottom: 3rem;
-  color: var(--ifm-heading-color);
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: var(--ifm-heading-color);
+    margin-bottom: 14px;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
+.titleAccent {
+    /* Wersja 1: przezroczystość */
+    /* background: linear-gradient(135deg, var(--ifm-color-primary), rgba(46, 133, 85, 0.35)); */
+
+    /* Wersja 2: jaśniejszy zielony */
+    background: linear-gradient(135deg, var(--ifm-color-primary), #6ee7b7);
+
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
-.tweetCard {
-  display: flex;
-  flex-direction: column;
-  padding: 1.5rem;
-  background: var(--ifm-card-background-color);
-  border: 1px solid var(--ifm-color-emphasis-200);
-  border-radius: 12px;
-  text-decoration: none;
-  color: inherit;
-  transition: all 0.2s ease;
-  height: 100%;
+.subtitle {
+    font-size: 16px;
+    color: var(--ifm-color-content-secondary);
+    max-width: 460px;
+    margin: 0 auto;
+    line-height: 1.65;
 }
 
-.tweetCard:hover {
-  text-decoration: none;
-  color: inherit;
-  transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+/* ── Scroll track ── */
+.wrapper {
+    width: 100%;
+    overflow: hidden;
+    mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
 }
 
-/* Dark mode hover */
-html[data-theme='dark'] .tweetCard:hover {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+.scroll {
+    display: flex;
+    gap: 20px;
+    width: max-content;
+    padding: 12px 0 20px;
+    animation: scrollLeft 60s linear infinite;
 }
 
-.tweetHeader {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+.scroll:hover {
+    animation-play-state: paused;
+}
+
+@keyframes scrollLeft {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+}
+
+/* ── Card ── */
+.card {
+    flex-shrink: 0;
+    width: 320px;
+    background: var(--ifm-card-background-color, var(--ifm-background-surface-color));
+    border: 1px solid var(--ifm-toc-border-color);
+    border-radius: 16px;
+    padding: 24px;
+    transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+    cursor: default;
+}
+
+.card:hover {
+    border-color: var(--ifm-color-primary);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(46, 133, 85, 0.12);
+}
+
+.cardHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
 }
 
 .avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  object-fit: cover;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--ifm-toc-border-color);
+    flex-shrink: 0;
 }
 
-.userInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
+.meta {
+    flex: 1;
+    min-width: 0;
 }
 
 .name {
-  font-weight: 700;
-  font-size: 1rem;
-  color: var(--ifm-heading-color);
-  line-height: 1.2;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ifm-heading-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
 }
 
-.username {
-  font-size: 0.875rem;
-  color: var(--ifm-color-emphasis-600);
-  line-height: 1.2;
+.handle {
+    font-size: 12px;
+    color: var(--ifm-color-content-secondary);
+    margin-top: 1px;
 }
 
-.tweetContent {
-  flex: 1;
-  font-size: 0.9375rem;
-  line-height: 1.6;
-  color: var(--ifm-font-color-base);
-  margin-bottom: 1rem;
+.xIcon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    opacity: 0.45;
+    color: var(--ifm-color-content);
 }
 
-.tweetDate {
-  font-size: 0.875rem;
-  color: var(--ifm-color-emphasis-600);
-  margin-top: auto;
+.stars {
+    color: #f5c842;
+    font-size: 12px;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
 }
 
-/* Responsive design */
-@media (max-width: 996px) {
-  .grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+.text {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--ifm-color-content-secondary);
 }
 
-@media (max-width: 768px) {
-  .testimonialsSection {
-    padding: 3rem 0;
-  }
-
-  .container {
-    padding: 0 1rem;
-  }
-
-  .title {
-    font-size: 2rem;
-    margin-bottom: 2rem;
-  }
-
-  .grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  .tweetCard {
-    padding: 1.25rem;
-  }
-
-  .avatar {
-    width: 40px;
-    height: 40px;
-  }
-
-  .name {
-    font-size: 0.9375rem;
-  }
-
-  .username {
-    font-size: 0.8125rem;
-  }
-
-  .tweetContent {
-    font-size: 0.875rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .title {
-    font-size: 1.75rem;
-  }
-
-  .tweetCard {
-    padding: 1rem;
-  }
+.date {
+    margin-top: 16px;
+    font-size: 11px;
+    color: var(--ifm-color-content-secondary);
+    opacity: 0.6;
 }

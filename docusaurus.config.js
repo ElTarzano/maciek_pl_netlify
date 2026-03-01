@@ -96,10 +96,12 @@ const config = {
         indexBlog: true,
         indexDocs: true,
         indexPages: true,
+        searchBarShortcut: false,
         highlightSearchTermsOnTargetPage: true,
         explicitSearchResultPath: true,
         removeDefaultStemmer: true,
-        askAi: {
+        askAi: false,
+          /* askAi: {
           project: 'maciek-orlowski',
           apiUrl: 'https://maciek-ask-ai-server.vercel.app/api/stream',
           texts: {
@@ -111,7 +113,7 @@ const config = {
             welcomeMessage: 'Hej! W czym mogę Ci pomóc? 🧗',
             inputPlaceholder: 'Zadaj pytanie...',
             exampleQuestionsTitle: 'Przykładowe pytania:',
-          },
+          }, */
         },
       }),
     ],

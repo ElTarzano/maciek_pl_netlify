@@ -128,7 +128,7 @@ article.margin-bottom--xl header h2 a:hover {
   margin-bottom: 1.5rem;
 }
 
-
+/*
 article[class*="docItemCol"]::before {
   content: '';
   display: block;
@@ -137,11 +137,7 @@ article[class*="docItemCol"]::before {
   background-size: cover;
   margin-bottom: 2rem;
 }
-
-.searchHintContainer_Pkmr {
-  display: none !important;
-}
-
+*/
 
 /* MENU górne*/
 
@@ -190,3 +186,40 @@ article[class*="docItemCol"]::before {
   }
 }
 
+/* BLOG */
+
+/* 0. KARTA POSTA — mocniejsze obramowanie */
+article.margin-bottom--xl {
+  border: 1.5px solid var(--ifm-color-emphasis-400);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+/* 1. COVER IMAGE — rozciągnięty do krawędzi karty */
+article.margin-bottom--xl .markdown img:first-child {
+  display: block;
+  width: calc(100% + 3rem);
+  max-width: calc(100% + 3rem);
+  margin: 0 -1.5rem;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 10px 10px 0 0;
+}
+
+.blog-list-page article header, .blog-post-page article header {
+  margin-bottom: 0;
+}
+
+@layer docusaurus.infima {
+  .margin-bottom--xl {
+    margin-bottom: 3rem !important;
+  }
+}
+
+
+/* DOKU*/
+@layer docusaurus.infima {
+  .breadcrumbs__item--active .breadcrumbs__link {
+    color: var(--ifm-breadcrumb-color-base);
+  }
+}
